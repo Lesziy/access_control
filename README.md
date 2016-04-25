@@ -17,3 +17,5 @@ Możemy również zalogować się do panelu administracyjnego na stronie **http:
 Do uruchomienia aplikacji wymagane są:
 * python 2.7+
 * django 1.9.5+
+
+**testowane na Firefox 45.0 na linuxie mint 17.1 cinnamon**
