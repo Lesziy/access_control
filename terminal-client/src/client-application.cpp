@@ -64,8 +64,7 @@ void ClientApplication::executeCommand(int decision) {
     };
 
     auto optionalHandler = handlers.find(decision);
-    if(optionalHandler != end(handlers)
-       && optionalHandler->second != nullptr)
+    if(optionalHandler != end(handlers))
         (optionalHandler->second)();
 }
 
