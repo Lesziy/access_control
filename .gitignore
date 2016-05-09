@@ -1,1 +1,5 @@
 *.pyc
+terminal-client/include/
+terminal-client/build/
+*.o
+*.out
