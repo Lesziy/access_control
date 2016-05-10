@@ -15,6 +15,7 @@ sockaddr_in Connection::initialiseAddress(const std::string & ip, const std::str
     server.sin_addr.s_addr = inet_addr(ip.c_str());
     server.sin_family = AF_INET;
     server.sin_port = htons(std::stoi(port));
+
     return server;
 }
 
@@ -24,7 +25,7 @@ void Connection::sendMessage(const std::string msg) {
 }
 
 const std::string Connection::receiveMessage() {
-    const unsigned int buffer_size = 201;
+    const ssize_t buffer_size = 1000;
     std::string accumulator;
 
     while(receiveFragment(accumulator, buffer_size) == buffer_size);
@@ -32,10 +33,10 @@ const std::string Connection::receiveMessage() {
     return accumulator;
 }
 
-int Connection::receiveFragment(std::string & accumulator, const unsigned int buffer_size) {
+ssize_t Connection::receiveFragment(std::string & accumulator, const unsigned int buffer_size) {
     char rcvMsg[buffer_size];
 
-    int obtained = recv(socketfd_, rcvMsg, buffer_size, 0);
+    auto obtained = recv(socketfd_, rcvMsg, buffer_size, 0);
     if( obtained < 0 )
         perror("ERROR receiving");
     rcvMsg[obtained] = '\0';

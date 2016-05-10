@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <map>
 #include <termios.h>
+#include <functional>
 
 #include "auth-protocol.h"
 #include "connection.h"
@@ -19,8 +20,10 @@ private:
     int chooseCommand();
     void executeCommand(int);
     void setPasswordMode(bool);
+    void reserveRemoteMachine();
     
     Connection conn_;
     AuthenticationProtocol autProt_;
     bool running_ = true;
+
 };
