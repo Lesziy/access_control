@@ -1,1 +1,9 @@
 *.pyc
+include
+build
+.cproject
+.idea
+.project
+.settings
+*.o
+*.out
