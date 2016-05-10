@@ -1,5 +1,9 @@
 *.pyc
-terminal-client/include/
-terminal-client/build/
+include
+build
+.cproject
+.idea
+.project
+.settings
 *.o
 *.out
