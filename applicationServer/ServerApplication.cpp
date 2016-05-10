@@ -46,18 +46,21 @@ void ServerApplication::loadConfiguration() {
 }
 
 void* clientThreadFunction(void *sockfd) {
-    long int numbytes;
+    long int numbytes = 1;
     char buf[MAXDATASIZE];
     int* fd = (int*) sockfd;
-    while (true) {
-        if (send(*fd, "sample message", 13, 0) == -1)
-            perror("send");
-
-        if ((numbytes = recv(*fd, buf, MAXDATASIZE - 1, 0)) == -1)
+    int iMode = 0;
+    std::string welcomeMessage = "Witamy na serwerze!!! Udało Ci się połączyć!";
+    if (send(*fd, welcomeMessage.c_str(), welcomeMessage.length(), 0) == -1)
+        perror("ERROR Welcome message sending");
+    ioctl(*(int*)sockfd, FIONBIO, &iMode);
+    while (numbytes != 0) {
+        buf[0] = 'Z';
+        if (numbytes = recv(*fd, buf, MAXDATASIZE - 1, 0) < 0)
             perror("ERROR receiving message");
-        return 0;
 
         std::cout << buf << "/n";
     }
+    close(*(int*)sockfd);
 }
 

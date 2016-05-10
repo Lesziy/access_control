@@ -11,8 +11,53 @@
 #include <ctime>
 #include "json.hpp"
 
+struct Date{
+    std::string day;
+    std::string month;
+    std::string year;
+    std::string hour;
+    std::string minute;
+    std::string second;
+    Date(){};
+    Date(std::string day, std::string month, std::string year, std::string hour, std::string minute, std::string second):
+            day(day),
+            month(month),
+            year(year),
+            hour(hour),
+            minute(minute),
+            second(second)
+    {}
+    Date(const Date& date)
+    {
+        day = date.day;
+        month = date.month;
+        year = date.year;
+        hour = date.hour;
+        minute = date.minute;
+        second = date.second;
+    }
+
+    static std::string toString(const Date date)
+    {
+        return date.hour + ":" + date.minute + ":" + date.second + "/" + date.day + "/" + date.month + "/" + date.year;
+    }
+
+    static Date parse(std::string strDate)
+    {
+        Date date;
+        date.hour = strDate.substr(0,2);
+        date.minute = strDate.substr(3,2);
+        date.second = strDate.substr(6,2);
+        date.day = strDate.substr(9,2);
+        date.month = strDate.substr(12,2);
+        date.year = strDate.substr(15,4);
+        return date;
+    }
+
+};
+
 struct reservation {
-    struct tm start;			//http://www.cplusplus.com/reference/ctime/tm/
+    struct Date start;			//http://www.cplusplus.com/reference/ctime/tm/
     unsigned duration;
 };
 
@@ -31,7 +76,7 @@ public:
     static const std::string createGetCalendarFor();
     static const std::string createCalendarFor(
             std::vector<Reservation>& reservations);
-    static const std::string createCancelFor(const tm & startDate);
+    static const std::string createCancelFor(const Date & startDate);
     static const std::string createCanceledFor(const bool isCancelled);
 
     static const Reservation getReservation(
@@ -43,7 +88,7 @@ public:
     static const void getGetCalendar(const std::string & getCalendarMessage);
     static const std::vector<Reservation> getCalendar(
             const std::string & calendarMessage);
-    static const tm getCancel(const std::string & cancelMessage);
+    static const Date getCancel(const std::string & cancelMessage);
     static const bool getCanceled(const std::string & canceledMessage);
 
 private:

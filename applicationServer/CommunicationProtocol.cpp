@@ -10,14 +10,16 @@
 const std::string CommunicationProtocol::createReservationFor(
         const Reservation& reservation) {
     auto msg = basicMessage("reservation");
-    //TODO
+    msg["start"] = Date::toString(reservation.start);
+    msg["duration"] = reservation.duration;
     return msg.dump();
 }
 
 const std::string CommunicationProtocol::createReservedFor(
         const bool isReserved, const Reservation& reservation) {
     auto msg = basicMessage("reserved");
-    //TODO
+    msg["value"] = isReserved ? "true" : "false";
+    msg["overlap"] = createReservationFor(reservation);
     return msg.dump();
 }
 
@@ -47,7 +49,7 @@ const std::string CommunicationProtocol::createCalendarFor(
     return msg.dump();
 }
 
-const std::string CommunicationProtocol::createCancelFor(const tm& startDate) {
+const std::string CommunicationProtocol::createCancelFor(const Date& startDate) {
     auto msg = basicMessage("cancel");
     //TODO
     return msg.dump();
@@ -63,13 +65,16 @@ const std::string CommunicationProtocol::createCanceledFor(
 const Reservation CommunicationProtocol::getReservation(
         const std::string& reservationMessage) {
     auto msg = json::parse(reservationMessage);
-    //TODO
+    Reservation res;
+    res.start = Date::parse(msg["start"]);
+    res.duration = msg["duration"];
+    return res;
 }
 
 const std::pair<bool, Reservation> CommunicationProtocol::isReserved(
         const std::string& reservedMessage) {
     auto msg = json::parse(reservedMessage);
-    //TODO
+    return std::make_pair(msg["value"], getReservation(msg["overlap"]));
 }
 
 const void CommunicationProtocol::getUnlock(const std::string& unlockMessage) {
@@ -98,7 +103,7 @@ const std::vector<Reservation> CommunicationProtocol::getCalendar(
     //TODO
 }
 
-const tm CommunicationProtocol::getCancel(const std::string& cancelMessage) {
+const Date CommunicationProtocol::getCancel(const std::string& cancelMessage) {
     auto msg = json::parse(cancelMessage);
     //TODO
 }
