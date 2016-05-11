@@ -6,6 +6,7 @@
  */
 
 #include "ServerApplication.h"
+#include "sha3.h"
 
 void* clientThreadFunction(void * ptr);
 
@@ -42,6 +43,24 @@ void ServerApplication::loadConfiguration() {
     userFilePath = j["configuration"]["user_file_path"];
     calendarFilePath = j["configuration"]["calendar_file_path"];
     logFilePath = j["configuration"]["log_file_path"];
+}
+
+std::string ServerApplication::hashPassword(const std::string & passwordHash, const std::string & challenge){
+    SHA3 sha3;
+    std::string response = challenge;
+    response.append(passwordHash);
+    response = sha3(response);
+    return response;
+}
+
+std::string ServerApplication::generateChallenge() {
+    std::random_device rd;
+    SHA3 sha3;
+    std::mt19937 pseudoRandomNumberGenerator(rd());
+    std::string challenge = std::to_string(pseudoRandomNumberGenerator());
+    challenge = sha3(challenge);
+    return  challenge;
+
 }
 
 void* clientThreadFunction(void *sockfd) {
