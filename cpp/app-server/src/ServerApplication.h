@@ -29,6 +29,9 @@ public:
     const Connection getConnection() const {
         return conn;
     }
+    const std::string getCalendarFilePath() const {
+        return calendarFilePath;
+    }
 private:
     void authenticate();
     void clientThread(int clientFD);
@@ -41,6 +44,7 @@ private:
 
     std::string serverPort;
     std::string userFilePath, calendarFilePath, logFilePath;
+    std::vector<int> clientDescriptors;
 };
 
 #endif /* SERVERAPPLICATION_H_ */
