@@ -19,7 +19,7 @@ struct Date{
     std::string minute;
     std::string second;
     Date(){};
-    Date(std::string day, std::string month, std::string year, std::string hour, std::string minute, std::string second):
+    Date(std::string day, std::string month, std::string year, std::string hour, std::string minute, std::string second = 0):
             day(day),
             month(month),
             year(year),
@@ -59,6 +59,14 @@ struct Date{
 struct reservation {
     struct Date start;			//http://www.cplusplus.com/reference/ctime/tm/
     unsigned duration;
+    reservation& operator=(const reservation& other)
+    {
+        if (this != &other) {
+            this->duration = other.duration;
+            this->start = other.start;
+        }
+        return *this;
+    }
 };
 
 typedef struct reservation Reservation;
@@ -90,6 +98,7 @@ public:
             const std::string & calendarMessage);
     static const Date getCancel(const std::string & cancelMessage);
     static const bool getCanceled(const std::string & canceledMessage);
+    static const int getMessageType(const std::string & message);
 
 private:
     static const json basicMessage(const std::string & title);
