@@ -9,6 +9,7 @@
 #include "auth-protocol.h"
 #include "connection.h"
 #include "reservation.hpp"
+#include "sha3.h"
 // #include "/applicationServer/CommunicationProtocol.h"
 
 class ClientApplication {

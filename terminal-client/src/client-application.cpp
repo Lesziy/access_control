@@ -36,8 +36,12 @@ void ClientApplication::authenticate() {
 }
 
 std::string ClientApplication::hashPassword(const std::string & password, const std::string & challenge) {
-    // TODO
-    return password;
+    SHA3 sha3;
+    std::string passwordHash = sha3(password);
+    std::string response = challenge;
+    response.append(passwordHash);
+    response = sha3(response);
+    return response;
 }
 
 int ClientApplication::chooseCommand() {

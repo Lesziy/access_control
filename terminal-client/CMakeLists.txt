@@ -3,8 +3,8 @@ project(terminal_client)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-include_directories(include)
+include_directories("include")
 
-file(GLOB SOURCES "src/*.cpp")
+file(GLOB SOURCES "src/*.cpp" "include/*.cpp")
 
 add_executable(terminal_client ${SOURCES} src/reservation.hpp)
