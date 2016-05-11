@@ -22,11 +22,10 @@ private:
     std::string hashPassword(const std::string & password, const std::string & challenge);
     int chooseCommand();
     void executeCommand(int);
-    void setPasswordMode(bool);
     void reserveRemoteMachine();
+    void setPasswordMode(bool);
     
     Connection conn_;
     AuthenticationProtocol autProt_;
     bool running_ = true;
-
 };

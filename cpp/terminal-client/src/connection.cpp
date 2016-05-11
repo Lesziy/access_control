@@ -14,22 +14,32 @@ sockaddr_in Connection::initialiseAddress(const std::string & ip, const std::str
     struct sockaddr_in server;
     server.sin_addr.s_addr = inet_addr(ip.c_str());
     server.sin_family = AF_INET;
-    server.sin_port = htons(std::stoi(port));
-
+    server.sin_port = htons((unsigned short)std::stoi(port));
     return server;
 }
 
+void Connection::clean() {
+    close(socketfd_);
+}
+
 void Connection::sendMessage(const std::string msg) {
-    if(send(socketfd_, msg.c_str(), msg.length(), 0) < 0)
-        perror("ERROR sending");
+    ssize_t totalSent = 0;
+    do {
+        sendFragment(totalSent, msg.c_str() + totalSent, msg.length() - totalSent);
+    } while(totalSent != msg.length());
+}
+
+void Connection::sendFragment(ssize_t & totalSent, const char* toSend, const size_t toSendSize) {
+    ssize_t sent = send(socketfd_, toSend, toSendSize, 0);
+    if(sent < 0)
+        perror("Send error");
+    totalSent += sent;
 }
 
 const std::string Connection::receiveMessage() {
     const ssize_t buffer_size = 1000;
     std::string accumulator;
-
     while(receiveFragment(accumulator, buffer_size) == buffer_size);
-
     return accumulator;
 }
 
@@ -43,8 +53,4 @@ ssize_t Connection::receiveFragment(std::string & accumulator, const unsigned in
     accumulator += rcvMsg;
 
     return obtained;
-}
-
-void Connection::clean() {
-    close(socketfd_);
 }
