@@ -2,6 +2,7 @@
 
 #include <ctime>
 #include <string>
+#include <cstring>
 #include "json.hpp"
 
 struct Reservation {
@@ -23,18 +24,18 @@ public:
         return reservation;
     }
 
-    std::string startToString() {
+    std::string startToString() const {
         const int bufferSize = 30;
         char buffer[bufferSize];
         strftime(buffer, bufferSize, format_, &start_);
         return std::string(buffer);
     }
 
-    inline int duration() {
+    inline int duration() const {
         return duration_;
     }
 
-    inline struct tm toTmStruct() {
+    inline struct tm toTmStruct() const {
         return start_;
     }
 
