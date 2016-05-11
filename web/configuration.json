@@ -1,8 +1,0 @@
-{
-	"configuration":{
-		"port":"3000",
-		"user_file_path":"/Server/users.txt",
-		"calendar_file_path":"/Server/calendar.json",
-		"log_file_path":"/Server/log.json"
-	}
-}

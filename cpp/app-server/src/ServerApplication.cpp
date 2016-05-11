@@ -6,7 +6,6 @@
  */
 
 #include "ServerApplication.h"
-#include "CommunicationProtocol.h"
 
 void* clientThreadFunction(void * ptr);
 
@@ -66,7 +65,7 @@ void* clientThreadFunction(void *sockfd) {
                 break;
             case 5:                 //reservation
             {
-                reservation res = CommunicationProtocol::getReservation(buf);
+                Reservation res = CommunicationProtocol::getReservation(buf);
                 jsonFileLoader::addReservation("calendarFile.json", res, "Bartek");
                 break;
             }

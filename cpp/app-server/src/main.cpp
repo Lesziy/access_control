@@ -12,18 +12,15 @@
 int main() {
     ServerApplication server;
     server.run();
-    reservation res;
-    res.duration = 1;
-    Date date("01", "01", "2000", "00", "00", "00");
-    res.start = date;
-    jsonFileLoader::addReservation("calendarFile.json", res, "Bartek");
+    Reservation res;
+    jsonFileLoader::addReservation("calendarFile.json", res.create("01.01.2000, 12:00:00", 1), "Bartek");
 
     json js = jsonFileLoader::getJson("calendarFile.json");
     for (auto& element : js["reservations"]) {
         std::cout << element << '\n';
     }
 
-    jsonFileLoader::addReservation("calendarFile.json", res, "Edek");
+    jsonFileLoader::addReservation("calendarFile.json", res.create("01.01.2000, 12:00:00", 1), "Edek");
 
     js = jsonFileLoader::getJson("calendarFile.json");
     for (auto& element : js["reservations"]) {

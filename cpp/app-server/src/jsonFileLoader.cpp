@@ -11,7 +11,7 @@ json jsonFileLoader::getJson(std::string path) {
     return json::parse(loadFile(path));
 }
 
-void jsonFileLoader::addReservation(std::string path, reservation res, std::string username) {
+void jsonFileLoader::addReservation(std::string path, Reservation res, std::string username) {
     int index = 0;
 
     json data = getJson(path);
@@ -19,9 +19,9 @@ void jsonFileLoader::addReservation(std::string path, reservation res, std::stri
     for (auto& element : data["reservations"]) {
         index++;
     }
-    data["reservations"][index]["date"] = res.start.day + "." + res.start.month + "." + res.start.year;
-    data["reservations"][index]["interval_in_hours"] = res.duration;
-    data["reservations"][index]["start_hour"] = res.start.hour + ":" + res.start.minute;
+    data["reservations"][index]["date"] = res.startDateToString();
+    data["reservations"][index]["interval_in_hours"] = res.duration();
+    data["reservations"][index]["start_hour"] = res.startTimeToString();
     data["reservations"][index]["username"] = username;
     saveFile(path, data);
 }
@@ -46,7 +46,7 @@ void jsonFileLoader::saveFile(std::string path, json data){
     if (!file.is_open())
         perror("ERROR opening file");
 
-    file << data;
+    file << data.dump(4);
     file.close();
 }
 

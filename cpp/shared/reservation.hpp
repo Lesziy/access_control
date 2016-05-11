@@ -31,6 +31,20 @@ public:
         return std::string(buffer);
     }
 
+    std::string startDateToString() const {
+        const int bufferSize = 30;
+        char buffer[bufferSize];
+        strftime(buffer, bufferSize, formatDate_, &start_);
+        return std::string(buffer);
+    }
+
+    std::string startTimeToString() const {
+        const int bufferSize = 30;
+        char buffer[bufferSize];
+        strftime(buffer, bufferSize, formatTime_, &start_);
+        return std::string(buffer);
+    }
+
     inline int duration() const {
         return duration_;
     }
@@ -41,6 +55,8 @@ public:
 
 private:
     constexpr static const char* format_ = "%d.%m.%Y %T";
+    constexpr static const char* formatDate_ = "%d.%m.%Y";
+    constexpr static const char* formatTime_ = "%T";
     struct tm start_;
     int duration_;
 };

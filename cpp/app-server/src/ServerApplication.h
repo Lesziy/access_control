@@ -14,7 +14,7 @@
 #include <fstream>
 #include <pthread.h>
 
-#include "AuthenticationProtocol.h"
+#include "auth-protocol.h"
 #include "Connection.h"
 #include "jsonFileLoader.h"
 #include "Logger.h"

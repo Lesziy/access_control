@@ -20,7 +20,7 @@ using json = nlohmann::json;
 class jsonFileLoader {
 public:
     static json getJson(std::string path);
-    static void addReservation(std::string path, reservation res, std::string username);
+    static void addReservation(std::string path, Reservation res, std::string username);
 private:
     static std::string loadFile(std::string path);
     static void saveFile(std::string path, json data);
