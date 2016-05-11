@@ -9,6 +9,7 @@
 #include "auth-protocol.h"
 #include "connection.h"
 #include "/applicationServer/CommunicationProtocol.h"
+#include "sha3.h"
 
 class ClientApplication {
 public:
