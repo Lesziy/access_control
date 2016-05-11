@@ -17,6 +17,7 @@ public:
     void clean();
 private:
     static sockaddr_in initialiseAddress(const std::string & ip, const std::string & port);
+    void sendFragment(ssize_t &totalSent, const char *toSend, const size_t toSendSize);
     ssize_t receiveFragment(std::string & accumulator, const unsigned int buffer_size);
 
     int socketfd_;

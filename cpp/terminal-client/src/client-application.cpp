@@ -9,7 +9,7 @@ ClientApplication::~ClientApplication() {
 }
 
 void ClientApplication::run() {
-    // authenticate();
+    authenticate();
     while (running_)
     	executeCommand( chooseCommand() );
     std::cout << "Terminating application..." << std::endl;
@@ -17,13 +17,13 @@ void ClientApplication::run() {
 
 void ClientApplication::authenticate() {
     do {
-        std::string login, password;
-
         std::cout << "Enter login: ";
+        std::string login;
         getline(std::cin, login);
 
         std::cout << "Enter password: ";
         setPasswordMode(true);
+        std::string password;
         getline(std::cin, password);
         setPasswordMode(false);
         std::cout << std::endl << "Authenticating..." << std::endl;
@@ -95,9 +95,6 @@ void ClientApplication::reserveRemoteMachine() {
 void ClientApplication::setPasswordMode(bool enable) {
     struct termios tty;
     tcgetattr(STDIN_FILENO, &tty);
-    if(enable)
-        tty.c_lflag &= ~ECHO;
-    else
-        tty.c_lflag |= ECHO;
+    enable ? tty.c_lflag &= ~ECHO : tty.c_lflag |= ECHO;
     (void) tcsetattr(STDIN_FILENO, TCSANOW, &tty);
 }

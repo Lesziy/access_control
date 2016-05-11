@@ -54,9 +54,9 @@ public:
     }
 
 private:
-    constexpr static const char* format_ = "%d.%m.%Y %T";
-    constexpr static const char* formatDate_ = "%d.%m.%Y";
-    constexpr static const char* formatTime_ = "%T";
+    constexpr static auto format_ = "%d.%m.%Y %T";
+    constexpr static auto formatDate_ = "%d.%m.%Y";
+    constexpr static auto formatTime_ = "%T";
     struct tm start_;
     int duration_;
 };
