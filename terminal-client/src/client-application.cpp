@@ -82,7 +82,7 @@ void ClientApplication::setPasswordMode(bool enable) {
 }
 
 void ClientApplication::reserveRemoteMachine() {
-    std::cout << "Date (ex. 1.01.2014 12:54:12): ";
+    std::cout << "Date (ex. 01.01.2014 12:54:12): ";
     std::string date;
 
     getline(std::cin, date);
@@ -104,8 +104,14 @@ void ClientApplication::reserveRemoteMachine() {
         std::cout << "Incorrect data format." << std::endl;
         return;
     }
-
+    std::cout << parseResult;
     std::string duration;
     std::cout << "Duration (in hours): ";
     getline(std::cin, duration);
+
+    reservation res;
+    res.duration = std::stoi(duration);
+    Date datestruct("01", "01", "2000", "00", "00", "00");
+    res.start = datestruct;
+    conn_.sendMessage(CommunicationProtocol::createReservationFor(res) + "\n");
 }

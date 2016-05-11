@@ -115,6 +115,31 @@ const bool CommunicationProtocol::getCanceled(
     return true;
 }
 
+const int CommunicationProtocol::getMessageType(const std::string &message) {
+    static const std::map<std::string, int> msgTypes{
+            {"handshake", 1},
+            {"challenge", 2},
+            {"response", 3},
+            {"authenticated", 4},
+            {"reservation", 5},
+            {"reserved", 6},
+            {"unlock", 7},
+            {"unlocked", 8},
+            {"getCalendar", 9},
+            {"calendar", 10},
+            {"cancel", 11},
+            {"canceled", 12}
+    };
+    auto msg = json::parse(message);
+    try {
+        return msgTypes.at(msg["msg"]);
+    }
+    catch (const std::out_of_range& oor) {
+        perror("ERROR bad message type");
+        return -1;
+    }
+}
+
 const json CommunicationProtocol::basicMessage(const std::string & title) {
     return { {"msg", title}};
 }

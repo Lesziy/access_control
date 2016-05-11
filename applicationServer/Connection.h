@@ -24,10 +24,12 @@
 
 class Connection {
 public:
+    static Connection messageObject(const int sockfd);
     static Connection establishConnection(const std::string & port);
     int acceptConnection();
     void sendMessage(const int & fd, const std::string msg);
     const std::string receiveMessage(const int & fd);
+    ssize_t receiveFragment(std::string & accumulator, const unsigned int buffer_size);
     void clean();
 private:
     sockaddr_in initialiseAddress(const int & socketfd,

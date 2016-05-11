@@ -7,6 +7,12 @@
 
 #include "Connection.h"
 
+Connection Connection::messageObject(const int sockfd) {
+    Connection conn;
+    conn.socketfd_ = sockfd;
+    return conn;
+}
+
 Connection Connection::establishConnection(const std::string & port) {
     Connection conn;
     struct addrinfo hints, *servinfo;
@@ -49,6 +55,18 @@ const std::string Connection::receiveMessage(const int & fd) {
     if (recv(fd, rcvMsg, 2000, 0) < 0)
         perror("ERROR receiving");
     return std::string(rcvMsg);
+}
+
+ssize_t Connection::receiveFragment(std::string & accumulator, const unsigned int buffer_size) {
+    char rcvMsg[buffer_size];
+
+    auto obtained = recv(socketfd_, rcvMsg, buffer_size, 0);
+    if( obtained < 0 )
+        perror("ERROR receiving");
+    rcvMsg[obtained] = '\0';
+    accumulator += rcvMsg;
+
+    return obtained;
 }
 
 void Connection::clean() {

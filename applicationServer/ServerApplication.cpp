@@ -6,6 +6,7 @@
  */
 
 #include "ServerApplication.h"
+#include "CommunicationProtocol.h"
 
 void* clientThreadFunction(void * ptr);
 
@@ -34,7 +35,6 @@ void ServerApplication::clientThread(int clientFD) {
     pthread_t thread;
     int* fdptr = &clientFD;
     pthread_create(&thread, NULL, clientThreadFunction, (void*) fdptr);
-    pthread_join(thread, NULL);
 }
 
 void ServerApplication::loadConfiguration() {
@@ -47,18 +47,36 @@ void ServerApplication::loadConfiguration() {
 
 void* clientThreadFunction(void *sockfd) {
     long int numbytes = 1;
-    char buf[MAXDATASIZE];
-    int* fd = (int*) sockfd;
-    int iMode = 0;
-    std::string welcomeMessage = "Witamy na serwerze!!! Udało Ci się połączyć!";
-    if (send(*fd, welcomeMessage.c_str(), welcomeMessage.length(), 0) == -1)
-        perror("ERROR Welcome message sending");
-    ioctl(*(int*)sockfd, FIONBIO, &iMode);
-    while (numbytes != 0) {
-        buf[0] = 'Z';
-        if (numbytes = recv(*fd, buf, MAXDATASIZE - 1, 0) < 0)
-            perror("ERROR receiving message");
+    std::string buf;
+    //std::string welcomeMessage = "Witamy na serwerze!!! Udało Ci się połączyć!";
 
+    Connection conn = Connection::messageObject(*(int*)sockfd);
+    //if (send(*(int*)sockfd, welcomeMessage.c_str(), welcomeMessage.length(), 0) == -1)
+      //  perror("ERROR Welcome message sending");
+
+    while (numbytes != 0) {
+        buf.clear();
+        numbytes = conn.receiveFragment(buf, 200);
+
+        switch(CommunicationProtocol::getMessageType(buf))
+        {
+            case 1:                 //handshake
+                break;
+            case 3:                 //response
+                break;
+            case 5:                 //reservation
+            {
+                reservation res = CommunicationProtocol::getReservation(buf);
+                jsonFileLoader::addReservation("calendarFile.json", res, "Bartek");
+                break;
+            }
+            case 7:                 //unlock
+                break;
+            case 9:                 //getCalendar
+                break;
+            case 11:                //cancel
+                break;
+        }
         std::cout << buf << "/n";
     }
     close(*(int*)sockfd);
