@@ -8,7 +8,8 @@
 
 #include "auth-protocol.h"
 #include "connection.h"
-#include "/applicationServer/CommunicationProtocol.h"
+#include "reservation.hpp"
+// #include "/applicationServer/CommunicationProtocol.h"
 
 class ClientApplication {
 public:

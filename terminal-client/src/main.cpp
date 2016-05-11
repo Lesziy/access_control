@@ -1,4 +1,6 @@
 #include "client-application.h"
+#include "reservation.hpp"
+#include <iostream>
 
 int main(int argc, char** argv) {
     const auto ip = "209.85.225.103";

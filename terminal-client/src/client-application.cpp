@@ -71,6 +71,23 @@ void ClientApplication::executeCommand(int decision) {
         (optionalHandler->second)();
 }
 
+void ClientApplication::reserveRemoteMachine() {
+    std::cout << "Date (ex. 01.01.2014 12:54:12): ";
+    std::string date;
+    getline(std::cin, date);
+
+    std::cout << "Duration (in hours): ";
+    std::string duration;
+    getline(std::cin, duration);
+
+    try {
+        auto reservation = Reservation::create(date, std::stoi(duration));
+        // conn_.sendMessage(CommunicationProtocol::createReservationFor(reservation.startToString()) + "\n");
+    } catch(std::runtime_error& error) {
+        std::cout << error.what();
+    }
+}
+
 void ClientApplication::setPasswordMode(bool enable) {
     struct termios tty;
     tcgetattr(STDIN_FILENO, &tty);
@@ -79,39 +96,4 @@ void ClientApplication::setPasswordMode(bool enable) {
     else
         tty.c_lflag |= ECHO;
     (void) tcsetattr(STDIN_FILENO, TCSANOW, &tty);
-}
-
-void ClientApplication::reserveRemoteMachine() {
-    std::cout << "Date (ex. 01.01.2014 12:54:12): ";
-    std::string date;
-
-    getline(std::cin, date);
-
-    struct tm tm;
-    const char* validDateFormat = "%d.%m.%Y %T";
-
-    const char* cDate = date.c_str();
-    memset(&tm, 0, sizeof(struct tm));
-    auto parseResult = strptime(cDate, validDateFormat, &tm);
-
-    /*
-     * strptime returns NULL if the string couldn't be matched
-     * with format. The second condition is met where there was
-     * valid data string but with some unnecessary trailing chars.
-     */
-    if(parseResult == NULL
-       || parseResult != cDate + date.length()) {
-        std::cout << "Incorrect data format." << std::endl;
-        return;
-    }
-    std::cout << parseResult;
-    std::string duration;
-    std::cout << "Duration (in hours): ";
-    getline(std::cin, duration);
-
-    reservation res;
-    res.duration = std::stoi(duration);
-    Date datestruct("01", "01", "2000", "00", "00", "00");
-    res.start = datestruct;
-    conn_.sendMessage(CommunicationProtocol::createReservationFor(res) + "\n");
 }
