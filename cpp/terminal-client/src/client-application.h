@@ -10,7 +10,7 @@
 #include "connection.h"
 #include "reservation.hpp"
 #include "sha3.h"
-#include "CommunicationProtocol.h"
+#include "communication-protocol.h"
 
 class ClientApplication {
 public:

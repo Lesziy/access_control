@@ -9,17 +9,23 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <cerrno>
+#include <socket-utils.h>
 
 class Connection {
 public:
     static Connection establishWith(const std::string & serverIp, const std::string & port);
-    void sendMessage(const std::string msg);
-    const std::string receiveMessage();
+
+    void sendMessage(const std::string msg) {
+        SocketUtils::sendMessage(socketfd_, msg);
+    }
+
+    const std::string receiveMessage() {
+        return SocketUtils::receiveMessage(socketfd_);
+    }
+
     void clean();
 private:
     static sockaddr_in initialiseAddress(const std::string & ip, const std::string & port);
-    void sendFragment(ssize_t &totalSent, const char *toSend, const size_t toSendSize);
-    ssize_t receiveFragment(std::string & accumulator, const unsigned int buffer_size);
 
     int socketfd_;
 };

@@ -5,7 +5,7 @@
  *      Author: secman
  */
 
-#include "CommunicationProtocol.h"
+#include "communication-protocol.h"
 
 const std::string CommunicationProtocol::createReservationFor(
         const Reservation& reservation) {
