@@ -13,8 +13,7 @@
 #include <string>
 
 #include "json.hpp"
-#include "CommunicationProtocol.h"
-#include <pthread.h>
+#include "communication-protocol.h"
 
 using json = nlohmann::json;
 

@@ -45,30 +45,6 @@ Connection Connection::establishConnection(const std::string & port) {
     return conn;
 }
 
-void Connection::sendMessage(const int & fd, const std::string msg) {
-    if (send(fd, msg.c_str(), msg.length(), 0) < 0)
-        perror("ERROR sending");
-}
-
-const std::string Connection::receiveMessage(const int & fd) {
-    const ssize_t buffer_size = 1000;
-    std::string accumulator;
-    while(receiveFragment(fd, accumulator, buffer_size) == buffer_size);
-    return accumulator;
-}
-
-ssize_t Connection::receiveFragment(const int & fd, std::string & accumulator, const unsigned int buffer_size) {
-    char rcvMsg[buffer_size];
-
-    auto obtained = recv(fd, rcvMsg, buffer_size, 0);
-    if( obtained < 0 )
-        perror("ERROR receiving");
-    rcvMsg[obtained] = '\0';
-    accumulator += rcvMsg;
-
-    return obtained;
-}
-
 void Connection::clean() {
     close(socketfd_);
 }
@@ -94,4 +70,3 @@ int Connection::acceptConnection() {
 
     return new_fd;
 }
-

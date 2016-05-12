@@ -19,6 +19,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <socket-utils.h>
 
 #define BACKLOG 10
 
@@ -27,9 +28,15 @@ public:
     static Connection messageObject(const int sockfd);
     static Connection establishConnection(const std::string & port);
     int acceptConnection();
-    void sendMessage(const int & fd, const std::string msg);
-    const std::string receiveMessage(const int & fd);
-    ssize_t receiveFragment(const int & fd, std::string & accumulator, const unsigned int buffer_size);
+
+    void sendMessage(const int fd, const std::string msg) {
+        SocketUtils::sendMessage(fd, msg);
+    }
+
+    const std::string receiveMessage(const int fd) {
+        return SocketUtils::receiveMessage(fd);
+    }
+
     void clean();
 private:
 
