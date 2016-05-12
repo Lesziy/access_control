@@ -1,8 +1,8 @@
 {
 	"configuration":{
 		"port":"3490",
-		"user_file_path":"/Server/users.txt",
+		"user_file_path":"usersFile.json",
 		"calendar_file_path":"calendarFile.json",
-		"log_file_path":"/Server/log.json"
+		"log_file_path":"Log/serverLog.log"
 	}
 }

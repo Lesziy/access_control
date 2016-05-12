@@ -96,7 +96,7 @@ void* clientThreadFunction(void *data) {
                 bool authenticated;
                 std::string message;
                 std::string response = AuthenticationProtocol::getResponse(buf);
-                std::string password = "c0067d4af4e87f00dbac63b6156828237059172d1bbeac67427345d6a9fda484";
+                std::string password = jsonFileLoader::getPasswordHash(server->getUsersFilePath(), username);
                 std::string hashRes = server->hashPassword(password, challenge);
                 authenticated = response.compare(hashRes) == 0;
                 message = AuthenticationProtocol::createAuthenticatedFor(authenticated);
@@ -106,7 +106,7 @@ void* clientThreadFunction(void *data) {
             case 5:                 //reservation
             {
                 Reservation res = CommunicationProtocol::getReservation(buf);
-                jsonFileLoader::addReservation(server->getCalendarFilePath(), res, "Bartek");
+                jsonFileLoader::addReservation(server->getCalendarFilePath(), res, username);
                 break;
             }
             case 7:                 //unlock

@@ -14,7 +14,7 @@ json jsonFileLoader::getJson(std::string path) {
 void jsonFileLoader::addReservation(std::string path, Reservation res, std::string username) {
     int index = 0;
 
-    json data = getJson(path);
+    auto data = getJson(path);
 
     for (auto& element : data["reservations"]) {
         index++;
@@ -49,4 +49,15 @@ void jsonFileLoader::saveFile(std::string path, json data){
     file << data.dump(4);
     file.close();
 }
+
+std::string jsonFileLoader::getPasswordHash(std::string path, std::string username) {
+    auto data = getJson(path);
+    for (auto& element : data["users"]) {
+        if(username.compare(element["login"]) == 0)
+            return element["password_hash"];
+    }
+    return "default";
+}
+
+
 

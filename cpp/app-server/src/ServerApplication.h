@@ -30,6 +30,10 @@ public:
         return calendarFilePath;
     }
 
+    const std::string getUsersFilePath() const {
+        return userFilePath;
+    }
+
     std::string hashPassword(const std::string & passwordHash, const std::string & challenge);
     std::string generateChallenge();
 
