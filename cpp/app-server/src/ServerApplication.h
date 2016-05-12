@@ -32,12 +32,14 @@ public:
     const std::string getCalendarFilePath() const {
         return calendarFilePath;
     }
+
+    std::string hashPassword(const std::string & passwordHash, const std::string & challenge);
+    std::string generateChallenge();
+
 private:
     void authenticate();
     void clientThread(int clientFD);
     void loadConfiguration();
-    std::string hashPassword(const std::string & passwordHash, const std::string & challenge);
-    std::string generateChallenge();
     // void unlockIP();
 
     Connection conn;

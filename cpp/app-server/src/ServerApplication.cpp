@@ -39,7 +39,7 @@ void ServerApplication::clientThread(int clientFD) {
         ServerApplication* ptrServer;
     } *msg;
 
-    clientDescriptors.push_back(10);
+    clientDescriptors.push_back(clientFD);
     msg = new Msg();
     msg->clientfd = &(clientDescriptors.at(clientDescriptors.size()-1));
     msg->ptrServer = this;
@@ -86,7 +86,8 @@ void* clientThreadFunction(void *data) {
 
     long int numbytes = 1;
     std::string buf;
-    Connection conn = server->getConnection();
+    std::string username, challenge;
+    Connection conn = Connection::messageObject(sockfd);
 
     //std::string welcomeMessage = "Witamy na serwerze!!! Udało Ci się połączyć!";
     //if (send(*(int*)sockfd, welcomeMessage.c_str(), welcomeMessage.length(), 0) == -1)
@@ -99,9 +100,32 @@ void* clientThreadFunction(void *data) {
         switch(CommunicationProtocol::getMessageType(buf))
         {
             case 1:                 //handshake
+            {
+                username = AuthenticationProtocol::getLogin(buf);
+                challenge = server->generateChallenge();
+                std::string message = AuthenticationProtocol::createChallengeFor(challenge);
+                conn.sendMessage(sockfd, message);
                 break;
+            }
             case 3:                 //response
+            {
+                bool authenticated;
+                std::string message;
+                std::string response = AuthenticationProtocol::getResponse(buf);
+                std::string password = "password";
+                std::string hashRes = server->hashPassword(password, challenge);
+                authenticated = response.compare(hashRes) == 0 ? true : false;
+                if(authenticated) {
+                    message = AuthenticationProtocol::createAuthenticatedFor(authenticated);
+                    perror("ERROR bad password");
+                }
+                else
+                    message = AuthenticationProtocol::createAuthenticatedFor(authenticated);
+                conn.sendMessage(sockfd, message);
+                if(!authenticated)
+                    return (void*)0;
                 break;
+            }
             case 5:                 //reservation
             {
                 Reservation res = CommunicationProtocol::getReservation(buf);
