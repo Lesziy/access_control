@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "connection.h"
 
 Connection Connection::establishWith(const std::string & serverIp, const std::string & port) {
@@ -49,6 +50,8 @@ ssize_t Connection::receiveFragment(std::string & accumulator, const unsigned in
     auto obtained = recv(socketfd_, rcvMsg, buffer_size, 0);
     if( obtained < 0 )
         perror("ERROR receiving");
+    if( obtained == 0 )
+        throw std::runtime_error("SERVER_DISCONNECTED");
     rcvMsg[obtained] = '\0';
     accumulator += rcvMsg;
 

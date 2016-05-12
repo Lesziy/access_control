@@ -86,7 +86,7 @@ void ClientApplication::reserveRemoteMachine() {
 
     try {
         auto reservation = Reservation::create(date, std::stoi(duration));
-        conn_.sendMessage(CommunicationProtocol::createReservationFor(reservation) + "\n");
+        conn_.sendMessage(CommunicationProtocol::createReservationFor(reservation));
     } catch(std::runtime_error& error) {
         std::cout << error.what();
     }

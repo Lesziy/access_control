@@ -51,16 +51,16 @@ void Connection::sendMessage(const int & fd, const std::string msg) {
 }
 
 const std::string Connection::receiveMessage(const int & fd) {
-    char rcvMsg[2000];
-    if (recv(fd, rcvMsg, 2000, 0) < 0)
-        perror("ERROR receiving");
-    return std::string(rcvMsg);
+    const ssize_t buffer_size = 1000;
+    std::string accumulator;
+    while(receiveFragment(fd, accumulator, buffer_size) == buffer_size);
+    return accumulator;
 }
 
-ssize_t Connection::receiveFragment(std::string & accumulator, const unsigned int buffer_size) {
+ssize_t Connection::receiveFragment(const int & fd, std::string & accumulator, const unsigned int buffer_size) {
     char rcvMsg[buffer_size];
 
-    auto obtained = recv(socketfd_, rcvMsg, buffer_size, 0);
+    auto obtained = recv(fd, rcvMsg, buffer_size, 0);
     if( obtained < 0 )
         perror("ERROR receiving");
     rcvMsg[obtained] = '\0';

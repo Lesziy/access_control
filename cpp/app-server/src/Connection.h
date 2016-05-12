@@ -29,12 +29,9 @@ public:
     int acceptConnection();
     void sendMessage(const int & fd, const std::string msg);
     const std::string receiveMessage(const int & fd);
-    ssize_t receiveFragment(std::string & accumulator, const unsigned int buffer_size);
+    ssize_t receiveFragment(const int & fd, std::string & accumulator, const unsigned int buffer_size);
     void clean();
 private:
-    sockaddr_in initialiseAddress(const int & socketfd,
-            const std::string & port);
-    std::string getLocalIP(const int & fd);
 
     int socketfd_;
 };

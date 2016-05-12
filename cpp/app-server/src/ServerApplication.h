@@ -24,11 +24,8 @@
 class ServerApplication {
 public:
     ServerApplication();
-    ~ServerApplication();
     void run();
-    const Connection getConnection() const {
-        return conn;
-    }
+
     const std::string getCalendarFilePath() const {
         return calendarFilePath;
     }
@@ -37,13 +34,10 @@ public:
     std::string generateChallenge();
 
 private:
-    void authenticate();
     void clientThread(int clientFD);
     void loadConfiguration();
-    // void unlockIP();
 
     Connection conn;
-    AuthenticationProtocol autProt;
     Logger* log;
 
     std::string serverPort;

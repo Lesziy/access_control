@@ -12,11 +12,6 @@ void* clientThreadFunction(void * ptr);
 
 ServerApplication::ServerApplication() {
     loadConfiguration();
-
-}
-
-ServerApplication::~ServerApplication() {
-
 }
 
 void ServerApplication::run() {
@@ -26,9 +21,6 @@ void ServerApplication::run() {
         int clientFD = conn.acceptConnection();
         clientThread(clientFD);
     }
-}
-
-void ServerApplication::authenticate() {
 }
 
 void ServerApplication::clientThread(int clientFD) {
@@ -84,19 +76,11 @@ void* clientThreadFunction(void *data) {
     ServerApplication* server = msg->ptrServer;
     delete(msg);
 
-    long int numbytes = 1;
     std::string buf;
     std::string username, challenge;
     Connection conn = Connection::messageObject(sockfd);
 
-    //std::string welcomeMessage = "Witamy na serwerze!!! Udało Ci się połączyć!";
-    //if (send(*(int*)sockfd, welcomeMessage.c_str(), welcomeMessage.length(), 0) == -1)
-      //  perror("ERROR Welcome message sending");
-
-    while (numbytes != 0) {
-        buf.clear();
-        numbytes = conn.receiveFragment(buf, 200);
-
+    while ((buf = conn.receiveMessage(sockfd)).length() != 0) {
         switch(CommunicationProtocol::getMessageType(buf))
         {
             case 1:                 //handshake
@@ -112,18 +96,11 @@ void* clientThreadFunction(void *data) {
                 bool authenticated;
                 std::string message;
                 std::string response = AuthenticationProtocol::getResponse(buf);
-                std::string password = "password";
+                std::string password = "c0067d4af4e87f00dbac63b6156828237059172d1bbeac67427345d6a9fda484";
                 std::string hashRes = server->hashPassword(password, challenge);
-                authenticated = response.compare(hashRes) == 0 ? true : false;
-                if(authenticated) {
-                    message = AuthenticationProtocol::createAuthenticatedFor(authenticated);
-                    perror("ERROR bad password");
-                }
-                else
-                    message = AuthenticationProtocol::createAuthenticatedFor(authenticated);
+                authenticated = response.compare(hashRes) == 0;
+                message = AuthenticationProtocol::createAuthenticatedFor(authenticated);
                 conn.sendMessage(sockfd, message);
-                if(!authenticated)
-                    return (void*)0;
                 break;
             }
             case 5:                 //reservation
@@ -138,9 +115,13 @@ void* clientThreadFunction(void *data) {
                 break;
             case 11:                //cancel
                 break;
+            default:
+                throw std::runtime_error("Unsupported action");
         }
-        std::cout << buf << "/n";
+        buf.clear();
     }
+
     close(sockfd);
+    return nullptr;
 }
 

@@ -33,7 +33,7 @@ const std::string AuthenticationProtocol::getResponse(const std::string & messag
 
 const bool AuthenticationProtocol::isAuthenticated(const std::string & message) {
     auto msg = json::parse(message);
-    return msg["authenticated"];
+    return msg["value"];
 }
 
 template<typename T>
