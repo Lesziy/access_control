@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+{% block content %}
+<title>Rezerwacja terminu</title>
+<style>
+		input[type=submit]
+		{
+			position: relative;
+			bottom: 20%;
+			left: 50%;
+			color: #444444;
+		}
+</style>
+    <table>
+       <caption> {{month}} {{year}} </caption>
+       <tr>
+         {% for dayName in daynames %}
+          <th>dayname</th>
+          {% endfor %}
+       </tr>
+          {% for week in weeks %}
+       <tr>
+          {% for day in week %}
+          <td>{{ day }}</td>
+          {% endfor %}
+       </tr>
+       {% endfor %}
+     </table>
+
+<div class = "logoutButton">
+			<form name = "logout" action = "" method = "post"> {% csrf_token %}
+				<input type = "submit" name = "logoutSubmit" value = "Logout">
+			</form>
+</div>
+{% endblock content %}

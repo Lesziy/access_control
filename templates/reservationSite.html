@@ -1,6 +1,7 @@
 <!DOCTYPE html>
+{% extends 'base.html' %}
 {% load static %}
-<html>
+
 	<style>
 		input[type=submit]
 		{
@@ -10,16 +11,8 @@
 			color: #444444;
 		}
 	</style>
-	<head>
+     {% block content %}
 		<title> Rezerwacja dostępu do komputera </title>
-		<link rel = "stylesheet" href = "{% static 'css/loginSite.css' %}">
-	</head>
-	<body>
-		<div class = "header">
-			<img src = "{% static "logoEiTI.png" %}" alt = "logo EiTI" />
-			Strona służąca do rezerwacji dostępu do komputerów na wydziale
-		</div>
-		<br>
 		<div class = "frame">
 		<form name = "loginForm" action = "" method = "post" accept-charset = "utf-8"> {% csrf_token %}
 			<div class = "field"> <label for = "user"> User </label><br>
@@ -29,6 +22,5 @@
 			<input type = "password" name = "password" placeholder = "********" required></div>
 			<input type = "submit" name = "loginSubmit" value = "Login">
 		</form></div>
-	</body>
-</html>
+      {% endblock content %}
 	

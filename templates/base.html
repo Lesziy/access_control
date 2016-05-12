@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+	
+    <head>
+		<link rel = "stylesheet" href = "{% static 'css/index.css' %}">
+		<link rel = "stylesheet" href = "{%static 'css/loginSite.css' %}">
+    </head>
+
+    <body>
+		<div class = "header">
+			<img src = "{% static "logoEiTI.png" %}" alt = "logo EiTI" />
+			Strona służąca do rezerwacji dostępu do komputerów na wydziale
+		</div>
+		{% block content %}
+		{% endblock %}
+		
+    </body>
+
+</html>
