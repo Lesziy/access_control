@@ -64,6 +64,12 @@ std::string ServerApplication::generateChallenge() {
     return challenge;
 }
 
+ServerApplication::~ServerApplication() {
+    conn.clean();
+    for(auto fd: clientDescriptors)
+        close(fd);
+}
+
 void* clientThreadFunction(void *data) {
     struct Msg
     {
