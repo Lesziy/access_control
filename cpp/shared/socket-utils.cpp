@@ -3,32 +3,59 @@
 void SocketUtils::sendMessage(const int fd, const std::string msg) {
     ssize_t totalSent = 0;
     do {
-        sendFragment(fd, totalSent, msg.c_str() + totalSent, msg.length() - totalSent);
+        auto toSend = msg.c_str() + totalSent;
+        auto toSendLength = msg.length() - totalSent;
+        totalSent += sendFragment(fd, toSend, toSendLength);
     } while(totalSent != msg.length());
 }
 
-void SocketUtils::sendFragment(const int fd, ssize_t & totalSent, const char* toSend, const size_t toSendSize) {
+ssize_t SocketUtils::sendFragment(const int fd, const char* toSend, const size_t toSendSize) {
     ssize_t sent = send(fd, toSend, toSendSize, 0);
     if(sent < 0)
         perror("Send error");
-    totalSent += sent;
+    return sent;
 }
 
-const std::string SocketUtils::receiveMessage(const int fd) {
-    const ssize_t buffer_size = 1000;
-    std::string accumulator;
-    while(receiveFragment(fd, accumulator, buffer_size) == buffer_size);
-    return accumulator;
+const std::string SocketUtils::receiveJSONMessage(const int fd) {
+    std::stack<char> braces;
+    std::string message;
+
+    while(true) {
+        auto received = receiveFragment(fd);
+        auto msgEnd = validateBraces(received, braces);
+        if(msgEnd == -1)
+            message += received;
+        else
+            return message + received.substr(0, msgEnd + 1);
+        /* this is simple request - response so second
+           message following first one is not considered */
+    }
 }
 
-ssize_t SocketUtils::receiveFragment(const int fd, std::string & accumulator, const unsigned int buffer_size) {
+std::string SocketUtils::receiveFragment(const int fd) {
+    const ssize_t buffer_size = 20;
     char rcvMsg[buffer_size];
-
     auto obtained = recv(fd, rcvMsg, buffer_size, 0);
-    if( obtained < 0 )
-        perror("ERROR receiving");
-    rcvMsg[obtained] = '\0';
-    accumulator += rcvMsg;
 
-    return obtained;
+    if( obtained < 0 )
+        throw std::runtime_error(strerror(errno));
+
+    rcvMsg[obtained] = '\0';
+    return std::string(rcvMsg);
+}
+
+long SocketUtils::validateBraces(const std::string received, std::stack<char> &braces) {
+    for (unsigned i = 0; i < received.size(); ++i) {
+        auto letter = received.at(i);
+        if(letter == '{')
+            braces.push('{');
+        else if(letter == '}') {
+            if(braces.empty())
+                throw std::runtime_error("Matching brace not found");
+            braces.pop();
+            if(braces.empty())
+                return i;
+        }
+    }
+    return -1;
 }

@@ -20,7 +20,7 @@ public:
     }
 
     const std::string receiveMessage() {
-        return SocketUtils::receiveMessage(socketfd_);
+        return SocketUtils::receiveJSONMessage(socketfd_);
     }
 
     void clean();
