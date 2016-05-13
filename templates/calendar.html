@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
 <title>Rezerwacja terminu</title>
+<head>
+   <link rel = "stylesheet" href = "{%static 'css/calendar.css' %}">
+</head>
 <style>
 		input[type=submit]
 		{
@@ -11,22 +15,28 @@
 			color: #444444;
 		}
 </style>
-    <table>
-       <caption> {{month}} {{year}} </caption>
-       <tr>
-         {% for dayName in daynames %}
-          <th>dayname</th>
-          {% endfor %}
-       </tr>
-          {% for week in weeks %}
-       <tr>
-          {% for day in week %}
-          <td>{{ day }}</td>
-          {% endfor %}
-       </tr>
-       {% endfor %}
-     </table>
+      <div class = "table">
+       <table>
+          <caption>
+             <button id = "prevMonth" onclick = "prevMonth()"> &lt;&lt;</button>
+             {{month}} {{year}}
+             <button id = "nexMonth" onclick = "nextMonth()"> &gt;&gt;</button>
+          </caption>
 
+          <tr>
+            {% for dayName in dayNames %}
+             <th>{{dayName}}</th>
+             {% endfor %}
+          </tr>
+             {% for week in weeks %}
+          <tr>
+             {% for day in week %}
+             <td align="right">{{day}}</td>
+             {% endfor %}
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
 <div class = "logoutButton">
 			<form name = "logout" action = "" method = "post"> {% csrf_token %}
 				<input type = "submit" name = "logoutSubmit" value = "Logout">
