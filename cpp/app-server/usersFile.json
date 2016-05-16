@@ -1,0 +1,12 @@
+{
+  "users": [
+    {
+      "login": "bkunikow",
+      "password_hash": "c0067d4af4e87f00dbac63b6156828237059172d1bbeac67427345d6a9fda484"
+    },
+    {
+      "login": "jrubin",
+      "password_hash": "bd107aa9ade63e190723deb3eb247bbce4dcbbd5c422bba641dd75a3ee964cf1"
+    }
+  ]
+}
