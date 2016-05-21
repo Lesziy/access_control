@@ -5,53 +5,54 @@
 <title>Rezerwacja terminu</title>
 <head>
    <link rel = "stylesheet" href = "{%static 'css/calendar.css' %}">
+   <script type="text/javascript" src = "{% static 'js/jquery-1.12.4.js' %}" ></script>
+   <script type="text/javascript" src = "{% static 'js/calendar.js' %}" ></script>
 </head>
-<style>
-		input[type=submit]
-		{
-			position: relative;
-			bottom: 20%;
-			left: 50%;
-			color: #444444;
-		}
-</style>
    <table>
       <tr>
       <td>
       <div class = "table">
+         <div id = "calendarTable">
        <table>
           <caption>
              <button id = "prevMonth" onclick = "prevMonth()"> &lt;&lt;</button>
-             {{month}} {{year}}
+             <div id = "month" style = "display : inline">{{month}}</div> <div id = "year" style = "display : inline">{{year}}</div>
              <button id = "nexMonth" onclick = "nextMonth()"> &gt;&gt;</button>
           </caption>
-
-          <tr>
-            {% for dayName in dayNames %}
-             <th>{{dayName}}</th>
-             {% endfor %}
-          </tr>
-             {% for week in weeks %}
-          <tr>
-             {% for day in week %}
-             <td align="right">{{day}}</td>
-             {% endfor %}
-          </tr>
+             <tr>
+               {% for dayName in dayNames %}
+                <th>{{dayName}}</th>
+                {% endfor %}
+             </tr>
+             
+                {% for week in weeks %}
+             <tr>
+                {% for day in week %}
+                <td align="right">{{day}}</td>
+                {% endfor %}
+             </tr>
           {% endfor %}
         </table>
+        </div>
       </div>
       </td>
-      <td>
+      <td><div class = "sendButtons">
          <div class = "button"><button id = "reserve" onclick = "reserve()"> Rezerwuj </button>
          <br>
          <button id = "resign" onclick = "resign()"> Wycofaj Rezerwację</button></div>
-      </td>
+      </div></td>
       </tr>
-   </table>
-<br>
-<div class = "logoutButton">
+	   <tr>
+		 <td colspan = "2">
+		   <div class = "logoutButton">
 			<form name = "logout" action = "" method = "post"> {% csrf_token %}
 				<input type = "submit" name = "logoutSubmit" value = "Logout">
 			</form>
-</div>
+		   </div>
+		</td>
+	  </tr>
+   </table>
+
+
+
 {% endblock content %}
