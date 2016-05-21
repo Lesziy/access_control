@@ -15,6 +15,9 @@
 			color: #444444;
 		}
 </style>
+   <table>
+      <tr>
+      <td>
       <div class = "table">
        <table>
           <caption>
@@ -37,6 +40,15 @@
           {% endfor %}
         </table>
       </div>
+      </td>
+      <td>
+         <div class = "button"><button id = "reserve" onclick = "reserve()"> Rezerwuj </button>
+         <br>
+         <button id = "resign" onclick = "resign()"> Wycofaj Rezerwację</button></div>
+      </td>
+      </tr>
+   </table>
+<br>
 <div class = "logoutButton">
 			<form name = "logout" action = "" method = "post"> {% csrf_token %}
 				<input type = "submit" name = "logoutSubmit" value = "Logout">
