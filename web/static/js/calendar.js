@@ -1,3 +1,43 @@
+window.onload = function(){
+    var calendar = document.getElementById("calendarTable");
+     for (var i = 1; i < calendar.rows.length; i++) {
+        for (var j = 0; j < calendar.rows[i].cells.length; j++) {
+            calendar.rows[i].cells[j].addEventListener("click",function(e){
+                tableText(e);
+            });
+        }
+    }
+}
+
+function listEvent(event){
+    event.stopPropagation();
+}
+
+var day;
+function tableText(e){
+    var daytemp = e.currentTarget.innerText;
+    day = daytemp;
+    if($("#test") != undefined)
+    {
+        $("#test").empty().remove();
+    }
+    if(day == "")
+    {
+        return;
+    }
+    newSelect = "<select id = \"test\" style=\"position: absolute; z-index : 1;\" multiple onclick = \"listEvent(event);\">";
+    for(i = 0; i<24; ++i)
+    {
+        newSelect +="<option> "
+        if(i<10)
+        {
+            newSelect += "0";
+        }
+        newSelect += i +":00 </option>";
+    }
+    newSelect +="</select>";
+    $(e.currentTarget).append(newSelect);
+}
 function getCookie(cname) {
     var name = cname + "=";
     var ca = document.cookie.split(';');
@@ -42,7 +82,20 @@ function prevMonth()
 }
 function reserve()
 {
-   
+   selected = $("#test option:selected").text();
+   if (day == undefined || day == "")
+   {
+      alert("nie wybrano dnia!");
+      return;
+   }
+   if (selected == "")
+   {
+       alert("nie wybrano godzin!");
+       return;
+   }
+  month = $("#month").text();
+  year = $("#year").text();
+   alert("year: " + year + " month: " + month + " day: " + day + " selected hours: " + selected);
 }
 function resign()
 {
@@ -50,7 +103,7 @@ function resign()
 }
 function makeCalendar(data)
 {
-   var newTable = "<table>";
+   var newTable = "";
    newTable += "<caption>\
 <button id = \"prevMonth\" onclick = \"prevMonth()\"> &lt;&lt;</button>\
 <div id = \"month\" style = \"display : inline\">"+ data.month +"</div> <div id = \"year\" style = \"display : inline\">"+data.year+"</div>\
@@ -71,7 +124,7 @@ function makeCalendar(data)
       }
       newTable +="</tr>\n";
    }
-   newTable +="</table>";
+   newTable;
    $("#calendarTable").html(newTable);
 }
 /*
