@@ -17,15 +17,15 @@ var day;
 function tableText(e){
     var daytemp = e.currentTarget.innerText;
     day = daytemp;
-    if($("#test") != undefined)
+    if($("#time") != undefined)
     {
-        $("#test").empty().remove();
+        $("#time").empty().remove();
     }
     if(day == "")
     {
         return;
     }
-    newSelect = "<select id = \"test\" style=\"position: absolute; z-index : 1;\" multiple onclick = \"listEvent(event);\">";
+    newSelect = "<select id = \"time\" style=\"position: absolute; z-index : 1;\" multiple onclick = \"listEvent(event);\">";
     for(i = 0; i<24; ++i)
     {
         newSelect +="<option> "
@@ -82,7 +82,7 @@ function prevMonth()
 }
 function reserve()
 {
-   selected = $("#test option:selected").text();
+   selected = $("#time option:selected").text();
    if (day == undefined || day == "")
    {
       alert("nie wybrano dnia!");
@@ -93,9 +93,16 @@ function reserve()
        alert("nie wybrano godzin!");
        return;
    }
-  month = $("#month").text();
-  year = $("#year").text();
-   alert("year: " + year + " month: " + month + " day: " + day + " selected hours: " + selected);
+  var reserveJSON = { month : $("#month").text(), year : $("#year").text(), day: day, time : selected };
+  $.ajax({
+      method: "POST",
+      url: "",
+      data: {'reserve' : JSON.stringify(reserveJSON), 'csrfmiddlewaretoken' : getCookie('csrftoken')},
+      async: true,
+      success : function(msg){
+          alert(msg);
+      }
+  });
 }
 function resign()
 {
@@ -126,6 +133,14 @@ function makeCalendar(data)
    }
    newTable;
    $("#calendarTable").html(newTable);
+    var calendar = document.getElementById("calendarTable");
+     for (var i = 1; i < calendar.rows.length; i++) {
+        for (var j = 0; j < calendar.rows[i].cells.length; j++) {
+            calendar.rows[i].cells[j].addEventListener("click",function(e){
+                tableText(e);
+            });
+        }
+    }
 }
 /*
              <table>
