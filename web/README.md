@@ -3,7 +3,9 @@ Projekt serwera kontroli dostępu do protokołu **SSH**
 
 ## ver0.0001a
 Do uruchomienia serwera służy polecenie **python manage.py runserver** {opcjonalnie "... runserver:numer_portu"}.
+
 Przed uruchomieniem, jeśli nie istnieje plik db.sqlite3, należy wpisać **python manage.py migrate**
+
 **W dalszej części przyjmuję, że aplikacja została uruchomiona na porcie 8000**
 
 Po uruchomieniu serwera za pomocą przeglądarki otwieramy stronę **http://localhost:8000**. Strona na chwilę obecną pozwala jedynie zalogować i wylogować się.
