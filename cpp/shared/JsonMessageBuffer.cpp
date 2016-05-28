@@ -17,12 +17,12 @@ std::string::const_iterator JsonMessageBuffer::parseStandalone(const std::string
     return message.end();
 }
 
-std::vector<std::string> JsonMessageBuffer::parseMessages(const std::string &message) {
-    std::vector<std::string> parsedMessages;
+JsonMessageBuffer::ValidMessages JsonMessageBuffer::parseMessages(const std::string &message) {
+    JsonMessageBuffer::ValidMessages parsedMessages;
     std::string first;
-    first = parse(message, bracesCounter != 0 || buffer != "");
+    first = parse(message, true);
     if(first != "") {
-        parsedMessages.push_back(first);
+        parsedMessages.push(first);
         parseBufferOnly(parsedMessages);
     }
     return parsedMessages;
@@ -32,7 +32,7 @@ std::string JsonMessageBuffer::parse(const std::string &message, bool withBuffer
     auto it = parseStandalone(message);
     if(it == message.end()) {
         if(withBuffer)
-            buffer += message;
+         buffer += message;
         return "";
     }
     std::string result = withBuffer ? buffer : "";
@@ -41,12 +41,12 @@ std::string JsonMessageBuffer::parse(const std::string &message, bool withBuffer
     return result;
 }
 
-void JsonMessageBuffer::parseBufferOnly(std::vector<std::string> & results) {
+void JsonMessageBuffer::parseBufferOnly(JsonMessageBuffer::ValidMessages & results) {
     while(true) {
         auto it = parseStandalone(buffer);
         if(it == buffer.end())
             break;
-        results.push_back(std::string(buffer.cbegin(), it + 1));
+        results.push(std::string(buffer.cbegin(), it + 1));
         buffer = std::string(it + 1, buffer.cend());
     }
 }

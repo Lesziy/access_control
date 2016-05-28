@@ -30,17 +30,29 @@ public:
     int acceptConnection();
 
     void sendMessage(const int fd, const std::string msg) {
-        SocketUtils::sendMessage(fd, msg);
+        socketTransfer_.sendMessage(fd, msg);
     }
 
     const std::string receiveMessage(const int fd) {
-        return SocketUtils::receiveJSONMessage(fd);
+        if(queue.empty()) {
+            auto obtained = socketTransfer_.receiveJSONMessage(socketfd_);
+            while(!obtained.empty())
+                queue.push(dequeue(obtained));
+        }
+        return dequeue(queue);
     }
 
     void clean();
 private:
+    const std::string dequeue(std::queue<std::string> &q) {
+        auto toRet = std::string(q.front());
+        q.pop();
+        return toRet;
+    }
 
     int socketfd_;
+    SocketTransfer socketTransfer_;
+    std::queue<std::string> queue;
 };
 
 #endif /* CONNECTION_H_ */

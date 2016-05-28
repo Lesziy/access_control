@@ -1,20 +1,20 @@
 #pragma once
 
-#include <string>
 #include <cstring>
 #include <stdexcept>
-#include <stack>
+#include <string>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <vector>
+#include "JsonMessageBuffer.h"
 
-class SocketUtils {
+class SocketTransfer {
 public:
-    static void sendMessage(const int fd, const std::string msg);
-
-    static const std::string receiveJSONMessage(const int fd);
-
+    void sendMessage(const int fd, const std::string msg);
+    const std::queue<std::string> receiveJSONMessage(const int fd);
 private:
-    static ssize_t sendFragment(const int fd, const char *toSend, const size_t toSendSize);
-    static std::string receiveFragment(const int fd);
-    static long validateBraces(const std::string received, std::stack<char> &braces);
+    ssize_t sendFragment(const int fd, const char *toSend, const size_t toSendSize);
+    std::string receiveFragment(const int fd);
+
+    JsonMessageBuffer messageBuffer_;
 };

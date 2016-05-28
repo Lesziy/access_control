@@ -2,11 +2,11 @@
 
 #include<string>
 #include<algorithm>
-#include <vector>
+#include <queue>
 
 class JsonMessageBuffer {
 public:
-    using ValidMessages = std::vector<std::string>;
+    using ValidMessages = std::queue<std::string>;
     ValidMessages parseMessages(const std::string &message);
 private:
     std::string parse(const std::string & message, bool withBuffer = false);
