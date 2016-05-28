@@ -24,6 +24,7 @@
 class ServerApplication {
 public:
     ServerApplication();
+    ~ServerApplication();
     void run();
 
     const std::string getCalendarFilePath() const {

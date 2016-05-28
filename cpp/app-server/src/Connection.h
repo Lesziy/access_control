@@ -34,7 +34,7 @@ public:
     }
 
     const std::string receiveMessage(const int fd) {
-        return SocketUtils::receiveMessage(fd);
+        return SocketUtils::receiveJSONMessage(fd);
     }
 
     void clean();
