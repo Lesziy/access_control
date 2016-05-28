@@ -1,51 +1,53 @@
 #include "JsonMessageBuffer.h"
 
-std::vector<std::string> JsonMessageBuffer::parseMessages(const std::string &message) {
-    std::vector<std::string> parsedMessages;
-    if(bracesCounter != 0) // previous message couldn't be fully parsed
-        parsedMessages.push_back(parseWithBuffered(message));
-    else // previous message was fully parsed
-        parsedMessages.push_back(parseStandalone(message));
-    parseBufferOnly(parsedMessages); // if single input provides more than one message the others are in buffer now
-    parsedMessages.erase(std::remove_if(begin(parsedMessages), end(parsedMessages), [](const auto& elem) { return elem == ""; }),
-                         end(parsedMessages));
-    return parsedMessages;
-}
-
-std::string JsonMessageBuffer::parseWithBuffered(const std::string &message) {
-    auto result = parseStandalone(message);
-    if(result != "")
-        return buffer + result;
-    return result;
-}
-
-std::string JsonMessageBuffer::parseStandalone(const std::string &message, bool store) {
+/**
+ * Return the iterator pointing to the closing brace of the json
+ */
+std::string::const_iterator JsonMessageBuffer::parseStandalone(const std::string &message) {
     for (auto it = message.begin(); it != message.end() ; ++it) {
         auto letter = *it;
         if(letter == '{')
             ++bracesCounter;
         else if(letter == '}') {
             --bracesCounter;
-            if(bracesCounter == 0) {
-                auto ret = std::string(message.begin(), it + 1);
-                buffer = std::string(it + 1, message.end());
-                return ret;
-            }
+            if(bracesCounter == 0)
+                return it;
         }
     }
-    if(store)
-        buffer += std::string(message.begin(), message.end());
-    return "";
+    return message.end();
+}
+
+std::vector<std::string> JsonMessageBuffer::parseMessages(const std::string &message) {
+    std::vector<std::string> parsedMessages;
+    std::string first;
+    first = parse(message, bracesCounter != 0 || buffer != "");
+    if(first != "") {
+        parsedMessages.push_back(first);
+        parseBufferOnly(parsedMessages);
+    }
+    return parsedMessages;
+}
+
+std::string JsonMessageBuffer::parse(const std::string &message, bool withBuffer) {
+    auto it = parseStandalone(message);
+    if(it == message.end()) {
+        if(withBuffer)
+            buffer += message;
+        return "";
+    }
+    std::string result = withBuffer ? buffer : "";
+    result += std::string(message.cbegin(), it + 1);
+    buffer = std::string(it + 1, message.cend());
+    return result;
 }
 
 void JsonMessageBuffer::parseBufferOnly(std::vector<std::string> & results) {
-    int currentCounter = bracesCounter;
-    bracesCounter = 0;
     while(true) {
-        auto onlyFromBuffer = parseStandalone(buffer, false);
-        if(onlyFromBuffer == "")
+        auto it = parseStandalone(buffer);
+        if(it == buffer.end())
             break;
-        results.push_back(onlyFromBuffer);
+        results.push_back(std::string(buffer.cbegin(), it + 1));
+        buffer = std::string(it + 1, buffer.cend());
     }
-    bracesCounter = currentCounter;
 }
+
