@@ -7,7 +7,7 @@
 #include <functional>
 
 #include "auth-protocol.h"
-#include "connection.h"
+#include "client-connection.h"
 #include "reservation.hpp"
 #include "sha3.h"
 #include "communication-protocol.h"
@@ -25,7 +25,7 @@ private:
     void reserveRemoteMachine();
     void setPasswordMode(bool);
     
-    Connection conn_;
+    ClientConnection conn_;
     AuthenticationProtocol autProt_;
     bool running_ = true;
 };

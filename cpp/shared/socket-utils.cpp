@@ -34,6 +34,8 @@ std::string SocketTransfer::receiveFragment(const int fd) {
 
     if( obtained < 0 )
         throw std::runtime_error(strerror(errno));
+    if(obtained == 0)
+        throw std::runtime_error("Client disconnected");
 
     rcvMsg[obtained] = '\0';
     return std::string(rcvMsg);

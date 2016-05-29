@@ -15,7 +15,7 @@
 #include <pthread.h>
 
 #include "auth-protocol.h"
-#include "Connection.h"
+#include "ServerConnection.h"
 #include "jsonFileLoader.h"
 #include "Logger.h"
 
@@ -42,7 +42,7 @@ private:
     void clientThread(int clientFD);
     void loadConfiguration();
 
-    Connection conn;
+    ServerConnection conn;
     Logger* log;
 
     std::string serverPort;

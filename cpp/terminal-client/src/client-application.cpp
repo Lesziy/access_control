@@ -1,7 +1,7 @@
 #include "client-application.h"
 
 ClientApplication::ClientApplication(const std::string & ip, const std::string & port) {
-    conn_ = Connection::establishWith(ip, port);
+    conn_ = ClientConnection::establishWith(ip, port);
 }
 
 ClientApplication::~ClientApplication() {
