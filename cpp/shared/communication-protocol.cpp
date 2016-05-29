@@ -18,8 +18,9 @@ const std::string CommunicationProtocol::createReservationFor(
 const std::string CommunicationProtocol::createReservedFor(
         const bool isReserved, const Reservation& reservation) {
     auto msg = basicMessage("reserved");
-    msg["value"] = isReserved ? "true" : "false";
-    msg["overlap"] = createReservationFor(reservation);
+    msg["value"] = isReserved;
+    if(isReserved)
+        msg["overlap"] = createReservationFor(reservation);
     return msg.dump();
 }
 
@@ -69,9 +70,11 @@ const Reservation CommunicationProtocol::getReservation(
 }
 
 const std::pair<bool, Reservation> CommunicationProtocol::isReserved(
-        const std::string& reservedMessage) {
+    const std::string& reservedMessage) {
+
     auto msg = json::parse(reservedMessage);
-    return std::make_pair(msg["value"], getReservation(msg["overlap"]));
+    bool success = msg["value"];
+    return std::make_pair(success, success ? getReservation(msg["overlap"]) : Reservation::missingReservation);
 }
 
 const void CommunicationProtocol::getUnlock(const std::string& unlockMessage) {

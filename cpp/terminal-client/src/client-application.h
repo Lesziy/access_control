@@ -8,7 +8,7 @@
 
 #include "auth-protocol.h"
 #include "client-connection.h"
-#include "reservation.hpp"
+#include "reservation.h"
 #include "sha3.h"
 #include "communication-protocol.h"
 

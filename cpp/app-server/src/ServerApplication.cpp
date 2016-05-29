@@ -17,7 +17,7 @@ ServerApplication::ServerApplication() {
 void ServerApplication::run() {
     loadConfiguration();
     conn = ServerConnection::establishConnection(serverPort);
-    while (true) {
+    while (running_) {
         int clientFD = conn.acceptConnection();
         clientThread(clientFD);
     }
@@ -114,6 +114,8 @@ void* clientThreadFunction(void *data) {
                 {
                     Reservation res = CommunicationProtocol::getReservation(buf);
                     jsonFileLoader::addReservation(server->getCalendarFilePath(), res, username);
+                    //TODO fake to test client
+                    conn.sendMessage(sockfd, CommunicationProtocol::createReservedFor(false, Reservation::missingReservation));
                     break;
                 }
                 case 7:                 //unlock

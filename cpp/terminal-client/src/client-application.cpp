@@ -76,17 +76,31 @@ void ClientApplication::executeCommand(int decision) {
 }
 
 void ClientApplication::reserveRemoteMachine() {
-    std::cout << "Date (ex. 01.01.2014 12:54:12): ";
-    std::string date;
-    getline(std::cin, date);
 
-    std::cout << "Duration (in hours): ";
-    std::string duration;
-    getline(std::cin, duration);
+    do {
+        try {
+            std::cout << "Date (ex. 01.01.2014 12:54:12): ";
+            std::string date;
+            getline(std::cin, date);
+
+            std::cout << "Duration (in hours): ";
+            std::string duration;
+            getline(std::cin, duration);
+            auto reservation = Reservation::create(date, std::stoi(duration));
+            conn_.sendMessage(CommunicationProtocol::createReservationFor(reservation));
+            break;
+        } catch(std::runtime_error& err) {
+            std::cout << "Invalid input. Try once again." << std::endl;
+        }
+    } while(true);
 
     try {
-        auto reservation = Reservation::create(date, std::stoi(duration));
-        conn_.sendMessage(CommunicationProtocol::createReservationFor(reservation));
+        auto isReserved = CommunicationProtocol::isReserved(conn_.receiveMessage());
+        if(isReserved.first)
+            std::cout << "Reservation successful" << std::endl;
+        else
+            // TODO show overlapping reservation
+            std::cout << "Specified date already reserved" << std::endl;
     } catch(std::runtime_error& error) {
         std::cout << error.what();
     }

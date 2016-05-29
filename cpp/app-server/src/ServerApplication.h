@@ -45,6 +45,7 @@ private:
     ServerConnection conn;
     Logger* log;
 
+    bool running_ = true;
     std::string serverPort;
     std::string userFilePath, calendarFilePath, logFilePath;
     std::vector<int> clientDescriptors;
