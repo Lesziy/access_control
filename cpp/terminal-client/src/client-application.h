@@ -1,0 +1,31 @@
+#pragma once
+
+#include <iostream>
+#include <cstdio>
+#include <map>
+#include <termios.h>
+#include <functional>
+
+#include "auth-protocol.h"
+#include "connection.h"
+#include "reservation.hpp"
+#include "sha3.h"
+#include "communication-protocol.h"
+
+class ClientApplication {
+public:
+    ClientApplication(const std::string & ip, const std::string & port);
+    ~ClientApplication();
+    void run();
+private:
+    void authenticate();
+    std::string hashPassword(const std::string & password, const std::string & challenge);
+    int chooseCommand();
+    void executeCommand(int);
+    void reserveRemoteMachine();
+    void setPasswordMode(bool);
+    
+    Connection conn_;
+    AuthenticationProtocol autProt_;
+    bool running_ = true;
+};

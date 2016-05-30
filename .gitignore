@@ -1,3 +1,12 @@
 *.pyc
 *db.sqlite3
 *.log
+include
+build
+.cproject
+.idea
+.project
+.settings
+*.o
+*.out
+Debug
