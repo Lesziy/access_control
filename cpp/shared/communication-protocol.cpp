@@ -7,6 +7,10 @@
 
 #include "communication-protocol.h"
 
+json fromReservation(const Reservation& r) {
+    return json{ {"start", r.startToString()}, {"duration", r.duration()} };
+}
+
 const std::string CommunicationProtocol::createReservationFor(
         const Reservation& reservation) {
     auto msg = basicMessage("reservation");
@@ -20,7 +24,7 @@ const std::string CommunicationProtocol::createReservedFor(
     auto msg = basicMessage("reserved");
     msg["value"] = isReserved;
     if(isReserved)
-        msg["overlap"] = createReservationFor(reservation);
+        msg["overlap"] = fromReservation(reservation);
     return msg.dump();
 }
 
@@ -45,7 +49,7 @@ const std::string CommunicationProtocol::createCalendarFor(
 
     std::vector<json> parsedReservations;
     for(auto& res : reservations)
-        parsedReservations.push_back(createReservationFor(res));
+        parsedReservations.push_back(fromReservation(res));
 
     msg["reservations"] = parsedReservations;
     return msg.dump();
@@ -98,10 +102,12 @@ const bool CommunicationProtocol::calendarRequested(
 const std::vector<Reservation> CommunicationProtocol::getCalendar(
         const std::string& calendarMessage) {
     auto msg = json::parse(calendarMessage);
-    json container = msg["reservations"];
+    auto container = msg["reservations"];
     std::vector<Reservation> reservations;
-    for(auto& res: container)
+    for(auto& res: container) {
         reservations.push_back(Reservation::create(res["start"], res["duration"]));
+    }
+
     return reservations;
 }
 
