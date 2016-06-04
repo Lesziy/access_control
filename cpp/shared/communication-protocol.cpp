@@ -25,41 +25,37 @@ const std::string CommunicationProtocol::createReservedFor(
 }
 
 const std::string CommunicationProtocol::createUnlockFor() {
-    auto msg = basicMessage("unlock");
-    //TODO
-    return msg.dump();
+    return basicMessage("unlock").dump();
 }
 
 const std::string CommunicationProtocol::createUnlockedFor(
         const bool isUnlocked) {
     auto msg = basicMessage("unlocked");
-    //TODO
+    msg["value"] = isUnlocked;
     return msg.dump();
 }
 
 const std::string CommunicationProtocol::createGetCalendarFor() {
-    auto msg = basicMessage("getCalendar");
-    //TODO
-    return msg.dump();
+    return basicMessage("getCalendar").dump();
 }
 
 const std::string CommunicationProtocol::createCalendarFor(
         std::vector<Reservation>& reservations) {
     auto msg = basicMessage("calendar");
-    //TODO
+    msg["reservations"] = reservations;
     return msg.dump();
 }
 
 const std::string CommunicationProtocol::createCancelFor(const Reservation& startDate) {
     auto msg = basicMessage("cancel");
-    //TODO
+    msg["start"] = startDate;
     return msg.dump();
 }
 
 const std::string CommunicationProtocol::createCanceledFor(
         const bool isCancelled) {
     auto msg = basicMessage("canceled");
-    //TODO
+    msg["value"] = isCancelled;
     return msg.dump();
 }
 
@@ -77,42 +73,38 @@ const std::pair<bool, Reservation> CommunicationProtocol::isReserved(
     return std::make_pair(success, success ? getReservation(msg["overlap"]) : Reservation::missingReservation);
 }
 
-const void CommunicationProtocol::getUnlock(const std::string& unlockMessage) {
+const bool CommunicationProtocol::unlockRequested(const std::string &unlockMessage) {
     auto msg = json::parse(unlockMessage);
-    //TODO
-    return;
+    return msg["msg"] == "unlock";
 }
 
 const bool CommunicationProtocol::isUnlocked(
         const std::string& unlockedMessage) {
     auto msg = json::parse(unlockedMessage);
-    //TODO
-    return true;
+    return msg["value"];
 }
 
-const void CommunicationProtocol::getGetCalendar(
-        const std::string& getCalendarMessage) {
+const bool CommunicationProtocol::calendarRequested(
+        const std::string &getCalendarMessage) {
     auto msg = json::parse(getCalendarMessage);
-    //TODO
-    return;
+    return msg["msg"] == "getCalendar";
 }
 
 const std::vector<Reservation> CommunicationProtocol::getCalendar(
         const std::string& calendarMessage) {
     auto msg = json::parse(calendarMessage);
-    //TODO
+    return msg["reservations"];
 }
 
 const Reservation CommunicationProtocol::getCancel(const std::string& cancelMessage) {
     auto msg = json::parse(cancelMessage);
-    //TODO
+    return msg["start"];
 }
 
 const bool CommunicationProtocol::getCanceled(
         const std::string& canceledMessage) {
     auto msg = json::parse(canceledMessage);
-    //TODO
-    return true;
+    return msg["value"];
 }
 
 const int CommunicationProtocol::getMessageType(const std::string &message) {
