@@ -25,7 +25,7 @@ public:
     static const std::string createGetCalendarFor();
     static const std::string createCalendarFor(
             std::vector<Reservation>& reservations);
-    static const std::string createCancelFor(const Reservation & startDate);
+    static const std::string createCancelFor(const Reservation & reservation);
     static const std::string createCanceledFor(const bool isCancelled);
 
     static const Reservation getReservation(

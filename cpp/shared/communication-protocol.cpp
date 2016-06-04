@@ -42,13 +42,18 @@ const std::string CommunicationProtocol::createGetCalendarFor() {
 const std::string CommunicationProtocol::createCalendarFor(
         std::vector<Reservation>& reservations) {
     auto msg = basicMessage("calendar");
-    msg["reservations"] = reservations;
+
+    std::vector<json> parsedReservations;
+    for(auto& res : reservations)
+        parsedReservations.push_back(createReservationFor(res));
+
+    msg["reservations"] = parsedReservations;
     return msg.dump();
 }
 
-const std::string CommunicationProtocol::createCancelFor(const Reservation& startDate) {
+const std::string CommunicationProtocol::createCancelFor(const Reservation& reservation) {
     auto msg = basicMessage("cancel");
-    msg["start"] = startDate;
+    msg["start"] = reservation.startDateToString();
     return msg.dump();
 }
 
@@ -93,12 +98,16 @@ const bool CommunicationProtocol::calendarRequested(
 const std::vector<Reservation> CommunicationProtocol::getCalendar(
         const std::string& calendarMessage) {
     auto msg = json::parse(calendarMessage);
-    return msg["reservations"];
+    json container = msg["reservations"];
+    std::vector<Reservation> reservations;
+    for(auto& res: container)
+        reservations.push_back(Reservation::create(res["start"], res["duration"]));
+    return reservations;
 }
 
 const Reservation CommunicationProtocol::getCancel(const std::string& cancelMessage) {
     auto msg = json::parse(cancelMessage);
-    return msg["start"];
+    return Reservation::create(msg["start"], 0);
 }
 
 const bool CommunicationProtocol::getCanceled(
