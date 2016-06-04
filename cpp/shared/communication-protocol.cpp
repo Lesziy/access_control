@@ -7,7 +7,7 @@
 
 #include "communication-protocol.h"
 
-json fromReservation(const Reservation& r) {
+json CommunicationProtocol::fromReservation(const Reservation& r) {
     return json{ {"start", r.startToString()}, {"duration", r.duration()} };
 }
 

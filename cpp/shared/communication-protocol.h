@@ -43,6 +43,8 @@ public:
 
 private:
     static const json basicMessage(const std::string & title);
+
+    static json fromReservation(const Reservation &r);
 };
 
 #endif /* COMMUNICATIONPROTOCOL_H_ */
