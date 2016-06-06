@@ -23,6 +23,17 @@ public:
         return start_;
     }
 
+    inline time_t startTimeToTime_t() const {
+        struct tm startTm = start_;
+        return mktime(&startTm);
+    }
+
+    inline time_t endTimeToTime_t() const {
+        struct tm startTm = start_;
+        startTm.tm_hour += duration_;
+        return mktime(&startTm);
+    }
+
     static const Reservation missingReservation;
 private:
     Reservation(){};

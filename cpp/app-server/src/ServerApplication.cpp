@@ -40,7 +40,7 @@ void ServerApplication::clientThread(int clientFD) {
 }
 
 void ServerApplication::loadConfiguration() {
-    json j = jsonFileLoader::getJson("configuration.json");
+    json j = jsonFileManager::getJson("configuration.json");
     serverPort = j["configuration"]["port"];
     userFilePath = j["configuration"]["user_file_path"];
     calendarFilePath = j["configuration"]["calendar_file_path"];
@@ -103,7 +103,7 @@ void* clientThreadFunction(void *data) {
                     bool authenticated;
                     std::string message;
                     std::string response = AuthenticationProtocol::getResponse(buf);
-                    std::string password = jsonFileLoader::getPasswordHash(server->getUsersFilePath(), username);
+                    std::string password = jsonFileManager::getPasswordHash(server->getUsersFilePath(), username);
                     std::string hashRes = server->hashPassword(password, challenge);
                     authenticated = response.compare(hashRes) == 0;
                     message = AuthenticationProtocol::createAuthenticatedFor(authenticated);
@@ -113,15 +113,21 @@ void* clientThreadFunction(void *data) {
                 case 5:                 //reservation
                 {
                     Reservation res = CommunicationProtocol::getReservation(buf);
-                    jsonFileLoader::addReservation(server->getCalendarFilePath(), res, username);
-                    //TODO fake to test client
-                    conn.sendMessage(sockfd, CommunicationProtocol::createReservedFor(false, Reservation::missingReservation));
+                    json calendar = jsonFileManager::getJson(server->getCalendarFilePath());
+
+                    if(calendarManager::addReservation(server->getCalendarFilePath(), res, username))
+                        conn.sendMessage(sockfd, CommunicationProtocol::createReservedFor(true, res));
+                    else
+                        conn.sendMessage(sockfd, CommunicationProtocol::createReservedFor(false, Reservation::missingReservation));
                     break;
                 }
                 case 7:                 //unlock
                     break;
                 case 9:                 //getCalendar
+                {
+
                     break;
+                }
                 case 11:                //cancel
                     break;
                 default:
@@ -136,4 +142,3 @@ void* clientThreadFunction(void *data) {
     close(sockfd);
     return nullptr;
 }
-

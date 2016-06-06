@@ -79,7 +79,7 @@ const std::pair<bool, Reservation> CommunicationProtocol::isReserved(
 
     auto msg = json::parse(reservedMessage);
     bool success = msg["value"];
-    return std::make_pair(success, success ? getReservation(msg["overlap"]) : Reservation::missingReservation);
+    return std::make_pair(success, success ? getReservation(msg["overlap"].dump()) : Reservation::missingReservation);
 }
 
 const bool CommunicationProtocol::unlockRequested(const std::string &unlockMessage) {
