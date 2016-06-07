@@ -113,9 +113,10 @@ void* clientThreadFunction(void *data) {
                 case 5:                 //reservation
                 {
                     Reservation res = CommunicationProtocol::getReservation(buf);
+                    res.changeUsername(username);                                                               //we need to add to reservation a username get from authorization
                     json calendar = jsonFileManager::getJson(server->getCalendarFilePath());
 
-                    if(calendarManager::addReservation(server->getCalendarFilePath(), res, username))
+                    if(CalendarManager::addReservation(server->getCalendarFilePath(), res))
                         conn.sendMessage(sockfd, CommunicationProtocol::createReservedFor(true, res));
                     else
                         conn.sendMessage(sockfd, CommunicationProtocol::createReservedFor(false, Reservation::missingReservation));
@@ -125,11 +126,17 @@ void* clientThreadFunction(void *data) {
                     break;
                 case 9:                 //getCalendar
                 {
-
+                    std::vector <Reservation> reservations = CalendarManager::getReservations(server->getCalendarFilePath());
+                    conn.sendMessage(sockfd, CommunicationProtocol::createCalendarFor(reservations));
                     break;
                 }
                 case 11:                //cancel
+                {
+                    Reservation res = CommunicationProtocol::getCancel(buf);
+                    res.changeUsername(username);
+                    conn.sendMessage(sockfd, CommunicationProtocol::createCanceledFor(CalendarManager::cancelReservation(server->getCalendarFilePath(), res)));
                     break;
+                }
                 default:
                     throw std::runtime_error("Unsupported action");
             }

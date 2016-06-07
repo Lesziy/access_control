@@ -7,8 +7,12 @@
 
 class Reservation {
 public:
+    static Reservation create(std::string start, int duration, std::string username);
     static Reservation create(std::string start, int duration);
 
+    inline void changeUsername(std::string username) {
+        username_ = username;
+    }
     std::string startToString() const;
 
     std::string startDateToString() const;
@@ -17,6 +21,10 @@ public:
 
     inline int duration() const {
         return duration_;
+    }
+
+    inline std::string username() const {
+        return username_;
     }
 
     inline struct tm toTmStruct() const {
@@ -42,4 +50,5 @@ private:
     constexpr static auto formatTime_ = "%T";
     struct tm start_;
     int duration_;
+    std::string username_;
 };

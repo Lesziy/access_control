@@ -10,12 +10,16 @@
 #include "jsonFileManager.h"
 #include "communication-protocol.h"
 
-class calendarManager {
+class CalendarManager {
 public:
-    static bool addReservation(std::string path, Reservation res, std::string username);
-
+    static json createNewCalendar(std::string path, std::vector <Reservation> reservations);
+    static bool addReservation(std::string path, Reservation res);
+    static bool cancelReservation(std::string path, Reservation res);
+    static std::vector <Reservation> getReservations(std::string path);
+    static std::vector <Reservation> getReservations(std::string path, std::string username);
+    static json getCalendar(std::string path);
 private:
-    static bool validateReservation(json calendar, Reservation res, std::string username);
+    static bool validateReservation(json calendar, Reservation res);
 };
 
 

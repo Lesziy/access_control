@@ -18,6 +18,14 @@ Reservation Reservation::create(std::string start, int duration) {
     if(parseResult != cStart + start.length())
         throw std::runtime_error("Input contains unnecessary trailing characters");
 
+    reservation.username_ = "";
+
+    return reservation;
+}
+
+Reservation Reservation::create(std::string start, int duration, std::string username) {
+    Reservation reservation = create(start, duration);
+    reservation.username_ = username;
     return reservation;
 }
 

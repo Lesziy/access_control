@@ -8,7 +8,10 @@
 #include "communication-protocol.h"
 
 json CommunicationProtocol::fromReservation(const Reservation& r) {
-    return json{ {"start", r.startToString()}, {"duration", r.duration()} };
+    if(r.username() == "")
+        return json{ {"start", r.startToString()}, {"duration", r.duration()} };
+    else
+        return json{ {"start", r.startToString()}, {"duration", r.duration()}, {"username", r.username()} };
 }
 
 const std::string CommunicationProtocol::createReservationFor(
@@ -105,7 +108,7 @@ const std::vector<Reservation> CommunicationProtocol::getCalendar(
     auto container = msg["reservations"];
     std::vector<Reservation> reservations;
     for(auto& res: container) {
-        reservations.push_back(Reservation::create(res["start"], res["duration"]));
+        reservations.push_back(Reservation::create(res["start"], res["duration"], res["username"]));
     }
 
     return reservations;
