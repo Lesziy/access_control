@@ -54,7 +54,7 @@ int Client::chooseCommand() {
 }
 
 void Client::executeCommand(int decision) {
-	static const std::map<int, std::function<void()>> handlers {
+    static const std::map<int, std::function<void()>> handlers {
         { 1, [this]{ makeReservation(); } },
         { 2, [this]{ unlockIpAddress(); } },
         { 3, [this]{ cancelReservation(); } },
@@ -123,7 +123,7 @@ void Client::cancelReservation() {
         utils::println("Not valid choice");
         return;
     }
-    
+
     utils::print("Cancelling chosen date...");
     conn_.sendMessage(CommunicationProtocol::createCancelFor(all.at(dec - 1)));
     if(CommunicationProtocol::getCanceled(conn_.receiveMessage()))
