@@ -64,7 +64,7 @@ int ClientApplication::chooseCommand() {
 void ClientApplication::executeCommand(int decision) {
 	static const std::map<int, std::function<void()>> handlers{
         { 1, [this]{ reserveRemoteMachine(); } },
-        { 2, []{ std::cout << "Not implemented yet" << std::endl; } },
+        { 2, [this]{ unlockMeOnRemote(); } },
         { 3, [this]{ showMyReservations(); } },
         { 4, [this]{ running_ = false; } }
     };
@@ -145,10 +145,16 @@ void ClientApplication::showMyReservations() {
     std::cout << "Cancelling chosen date...";
     conn_.sendMessage(CommunicationProtocol::createCancelFor(all.at(dec - 1)));
     if(CommunicationProtocol::getCanceled(conn_.receiveMessage()))
-        std::cout << "Reservation cancelled.";
+        std::cout << "Reservation cancelled." << std::endl;
     else
-        std::cout << "Reservation couldn't be cancelled.";
+        std::cout << "Reservation couldn't be cancelled." << std::endl;
 }
 
-
-
+void ClientApplication::unlockMeOnRemote() {
+    conn_.sendMessage(CommunicationProtocol::createUnlockFor());
+    std::cout << "Unlock request sent." << std::endl;
+    if(CommunicationProtocol::isUnlocked(conn_.receiveMessage()))
+        std::cout << "IP unlocked." << std::endl;
+    else
+        std::cout << "IP couldn't be unlocked." << std::endl;
+}

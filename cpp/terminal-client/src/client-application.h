@@ -27,6 +27,7 @@ private:
     void showMyReservations();
     std::vector<Reservation> getCalendar();
     void setPasswordMode(bool);
+    void unlockMeOnRemote();
     
     ClientConnection conn_;
     AuthenticationProtocol autProt_;
