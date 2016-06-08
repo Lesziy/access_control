@@ -5,14 +5,23 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponse, JsonResponse
 from calendar import Calendar
 from datetime import date
+from socket import *
 import json
 import logging
+import os
+import sha3
+from django.conf import settings
 months = ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec', 'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień']
 dayNames = ['Pon', 'Wt', 'Śr', 'Czw','Pt','Sob','Nie']
-logging.basicConfig(filename = '../web/logs/log.log',level = logging.DEBUG, format = '%(asctime)s %(levelname)s: %(message)s',datefmt = '%m/%d/%Y %H:%M:%S')
+logging.basicConfig(filename = settings.BASE_DIR + '/logs/log.log',level = logging.DEBUG, format = '%(asctime)s %(levelname)s: %(message)s',datefmt = '%m/%d/%Y %H:%M:%S')
+sessions = {}
+socketPort = 3490
+socketAddress = 'localhost'
+#GŁÓWNY KONTROLER#
 def index(request):
    # 'request' contains info about user
    #context = RequestContext(request)
+
    if request.method == 'POST':
       if "loginSubmit" in request.POST:
          loginSite(request)
@@ -31,7 +40,7 @@ def index(request):
    #basic login template 
    return render(request, 'reservationSite.html')
 
-# for now only stub, but socket function requesting reservation0
+#
 def processReservation(request):
    reservation = json.loads(request.POST['reserve'])
    ##convert request to utf-8
@@ -64,10 +73,7 @@ def jsonCalendar(request):
    return JsonResponse(calendarSite(year, monthNumber))
 
 
-def loginSite(request):
-   if(login(request)):
-      request.session["username"] = request.POST['user']
-      return render(request, 'calendar.html',calendarSite(date.today().year, date.today().month))
+
 def calendarSite(year, month):
    
    cal = Calendar()
@@ -79,6 +85,12 @@ def calendarSite(year, month):
             week[i] = ""
    return {'year': year, 'month': months[month-1] ,'dayNames' : dayNames, 'weeks' : weeks}
 
+
+
+def loginSite(request):
+   if(login(request)):
+      request.session["username"] = request.POST['user']
+      return render(request, 'calendar.html',calendarSite(date.today().year, date.today().month))
 def logout(request):
    logging.info("user %s logged out", request.session["username"])
    del request.session["username"]
@@ -86,7 +98,8 @@ def logout(request):
 
 #simple authorization method
 def login(request):
-   if(request.POST['user'] == 'admin' and request.POST['password'] == 'admin'):
+   initializeSocket(request)
+   if(tryConnect(sessions[request.session.session_key],request.POST['user'], request.POST['password'])):
       logging.info("user %s logged in", request.POST['user'])
       return True
    logging.error("tried to log in as %s failed", request.POST['user'])
@@ -111,6 +124,39 @@ def countReservations(timeTable):
          tempArr = [timeTable[i]]
    returned.append(tempArr)
    return returned
-
-
+def initializeSocket(request):
+   sessionSocket = socket(AF_INET, SOCK_STREAM)
+   sessionSocket.connect((socketAddress, socketPort))
+   sessions[request.session.session_key] = sessionSocket
+def tryConnect(sessionSocket, username, password):
+   sessionSocket.send("{\
+    \"msg\": \"handshake\", \
+    \"login\": \""+ username +"\"\
+    }")
+   response = getResponse(sessionSocket)
+   response = json.loads(response)
+   hashPassword = sha3.SHA3256()
+   hashPassword.update(password)
+   hashPassword = hashPassword.hexdigest()
+   request = response["challenge"] + hashPassword
+   hashRequest = sha3.SHA3256()
+   hashRequest.update(request)
+   hashRequest = hashRequest.hexdigest()
+   sessionSocket.send("{\
+   \"msg\": \"response\",\
+   \"password\" : \"" + hashRequest + "\"\
+   }")
+   response = getResponse(sessionSocket)
+   response = json.loads(response)
+   print response["value"]
+   if(response["value"] == True):
+      return True
+   return False
+def getResponse(sessionSocket):
+   response = ''
+   while(True):
+      response = response + sessionSocket.recv(100)
+      if(response.count('{')==response.count('}')):
+         break
+   return response
 
