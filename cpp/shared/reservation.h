@@ -7,8 +7,12 @@
 
 class Reservation {
 public:
+    static Reservation create(std::string start, int duration, std::string username);
     static Reservation create(std::string start, int duration);
 
+    inline void changeUsername(std::string username) {
+        username_ = username;
+    }
     std::string startToString() const;
 
     std::string startDateToString() const;
@@ -19,8 +23,23 @@ public:
         return duration_;
     }
 
+    inline std::string username() const {
+        return username_;
+    }
+
     inline struct tm toTmStruct() const {
         return start_;
+    }
+
+    inline time_t startTimeToTime_t() const {
+        struct tm startTm = start_;
+        return mktime(&startTm);
+    }
+
+    inline time_t endTimeToTime_t() const {
+        struct tm startTm = start_;
+        startTm.tm_hour += duration_;
+        return mktime(&startTm);
     }
 
     static const Reservation missingReservation;
@@ -31,4 +50,5 @@ private:
     constexpr static auto formatTime_ = "%T";
     struct tm start_;
     int duration_;
+    std::string username_;
 };

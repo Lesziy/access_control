@@ -25,16 +25,16 @@ public:
     static const std::string createGetCalendarFor();
     static const std::string createCalendarFor(
             std::vector<Reservation>& reservations);
-    static const std::string createCancelFor(const Reservation & startDate);
+    static const std::string createCancelFor(const Reservation & reservation);
     static const std::string createCanceledFor(const bool isCancelled);
 
     static const Reservation getReservation(
             const std::string & reservationMessage);
     static const std::pair<bool, Reservation> isReserved(
             const std::string & reservedMessage);
-    static const void getUnlock(const std::string & unlockMessage);
+    static const bool unlockRequested(const std::string &unlockMessage);
     static const bool isUnlocked(const std::string & unlockedMessage);
-    static const void getGetCalendar(const std::string & getCalendarMessage);
+    static const bool calendarRequested(const std::string &getCalendarMessage);
     static const std::vector<Reservation> getCalendar(
             const std::string & calendarMessage);
     static const Reservation getCancel(const std::string & cancelMessage);
@@ -43,6 +43,8 @@ public:
 
 private:
     static const json basicMessage(const std::string & title);
+
+    static json fromReservation(const Reservation &r);
 };
 
 #endif /* COMMUNICATIONPROTOCOL_H_ */

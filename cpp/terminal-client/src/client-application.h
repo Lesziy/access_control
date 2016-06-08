@@ -11,6 +11,7 @@
 #include "reservation.h"
 #include "sha3.h"
 #include "communication-protocol.h"
+#include "utils.h"
 
 class ClientApplication {
 public:
@@ -23,9 +24,13 @@ private:
     int chooseCommand();
     void executeCommand(int);
     void reserveRemoteMachine();
+    void showMyReservations();
+    std::vector<Reservation> getCalendar();
     void setPasswordMode(bool);
+    void unlockMeOnRemote();
     
     ClientConnection conn_;
     AuthenticationProtocol autProt_;
     bool running_ = true;
+    std::string login_;
 };

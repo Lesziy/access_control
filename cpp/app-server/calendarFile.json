@@ -2,7 +2,7 @@
     "reservations": [
         {
             "date": "01.01.2014",
-            "interval_in_hours": 1,
+            "interval_in_hours": 3,
             "start_hour": "12:54:12",
             "username": "bkunikow"
         },

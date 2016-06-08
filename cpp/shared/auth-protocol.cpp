@@ -21,7 +21,7 @@ const std::string AuthenticationProtocol::getLogin(const std::string & message) 
     return msg["login"];
 }
 
-const std::string AuthenticationProtocol::getChallenge(const std::string & message) { 
+const std::string AuthenticationProtocol::getChallenge(const std::string & message) {
     auto msg = json::parse(message);
     return msg["challenge"];
 }
@@ -37,7 +37,7 @@ const bool AuthenticationProtocol::isAuthenticated(const std::string & message) 
 }
 
 template<typename T>
-const std::string AuthenticationProtocol::createMessageFor(const std::string & basicMsg, 
+const std::string AuthenticationProtocol::createMessageFor(const std::string & basicMsg,
                                                            const std::string & field, 
                                                            const T & value) {
     auto msg = basicMessage(basicMsg);

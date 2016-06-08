@@ -16,7 +16,8 @@
 
 #include "auth-protocol.h"
 #include "ServerConnection.h"
-#include "jsonFileLoader.h"
+#include "jsonFileManager.h"
+#include "calendarManager.h"
 #include "Logger.h"
 
 #define MAXDATASIZE 200

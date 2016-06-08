@@ -3,10 +3,10 @@
 ClientConnection ClientConnection::establishWith(const std::string & serverIp, const std::string & port) {
     ClientConnection conn;
     if( (conn.socketfd_ = socket(AF_INET, SOCK_STREAM, 0)) == -1 ) 
-        perror("ERROR creating socket");
+        throw std::runtime_error("Error occured while creating socket.");
     auto address = initialiseAddress(serverIp, port);
     if( connect(conn.socketfd_, (struct sockaddr *) &address, sizeof(address)) < 0 )
-        perror("ERROR connecting");
+        throw std::runtime_error("Connection to server couldn't be stablished.");
     return conn;
 }
 

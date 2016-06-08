@@ -17,8 +17,6 @@ void printVector(std::string && initial, queue<string> && vec) {
         cout << nlohmann::json::parse(vec.front()).dump(4) << endl;
         vec.pop();
     }
-
-
 }
 
 int main() {
@@ -33,5 +31,5 @@ int main() {
     printVector("One", buffer.parseMessages(received));
     printVector("Two", buffer.parseMessages(received2));
     printVector("Three", buffer.parseMessages(received3));
-    printVector("Three", buffer.parseMessages(received4));
+    printVector("Four", buffer.parseMessages(received4));
 }
