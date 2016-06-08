@@ -20,27 +20,15 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <socket-utils.h>
+#include "../../shared/connection.h"
 
 #define BACKLOG 10
 
-class Connection {
+class ServerConnection : public Connection {
 public:
-    static Connection messageObject(const int sockfd);
-    static Connection establishConnection(const std::string & port);
+    static ServerConnection messageObject(const int sockfd);
+    static ServerConnection establishConnection(const std::string & port);
     int acceptConnection();
-
-    void sendMessage(const int fd, const std::string msg) {
-        SocketUtils::sendMessage(fd, msg);
-    }
-
-    const std::string receiveMessage(const int fd) {
-        return SocketUtils::receiveJSONMessage(fd);
-    }
-
-    void clean();
-private:
-
-    int socketfd_;
 };
 
 #endif /* CONNECTION_H_ */

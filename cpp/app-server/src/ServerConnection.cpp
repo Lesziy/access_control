@@ -5,16 +5,16 @@
  *      Author: secman
  */
 
-#include "Connection.h"
+#include "ServerConnection.h"
 
-Connection Connection::messageObject(const int sockfd) {
-    Connection conn;
+ServerConnection ServerConnection::messageObject(const int sockfd) {
+    ServerConnection conn;
     conn.socketfd_ = sockfd;
     return conn;
 }
 
-Connection Connection::establishConnection(const std::string & port) {
-    Connection conn;
+ServerConnection ServerConnection::establishConnection(const std::string & port) {
+    ServerConnection conn;
     struct addrinfo hints, *servinfo;
 
     memset(&hints, 0, sizeof hints);
@@ -45,11 +45,7 @@ Connection Connection::establishConnection(const std::string & port) {
     return conn;
 }
 
-void Connection::clean() {
-    close(socketfd_);
-}
-
-int Connection::acceptConnection() {
+int ServerConnection::acceptConnection() {
     socklen_t sin_size;
     char str[INET_ADDRSTRLEN];
     struct sockaddr_in their_addr; 			// connector's address information

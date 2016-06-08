@@ -16,8 +16,8 @@ ServerApplication::ServerApplication() {
 
 void ServerApplication::run() {
     loadConfiguration();
-    conn = Connection::establishConnection(serverPort);
-    while (true) {
+    conn = ServerConnection::establishConnection(serverPort);
+    while (running_) {
         int clientFD = conn.acceptConnection();
         clientThread(clientFD);
     }
@@ -84,47 +84,53 @@ void* clientThreadFunction(void *data) {
 
     std::string buf;
     std::string username, challenge;
-    Connection conn = Connection::messageObject(sockfd);
+    ServerConnection conn = ServerConnection::messageObject(sockfd);
 
-    while ((buf = conn.receiveMessage(sockfd)).length() != 0) {
-        switch(CommunicationProtocol::getMessageType(buf))
-        {
-            case 1:                 //handshake
+    try {
+        while ((buf = conn.receiveMessage(sockfd)).length() != 0) {
+            switch(CommunicationProtocol::getMessageType(buf))
             {
-                username = AuthenticationProtocol::getLogin(buf);
-                challenge = server->generateChallenge();
-                std::string message = AuthenticationProtocol::createChallengeFor(challenge);
-                conn.sendMessage(sockfd, message);
-                break;
+                case 1:                 //handshake
+                {
+                    username = AuthenticationProtocol::getLogin(buf);
+                    challenge = server->generateChallenge();
+                    std::string message = AuthenticationProtocol::createChallengeFor(challenge);
+                    conn.sendMessage(sockfd, message);
+                    break;
+                }
+                case 3:                 //response
+                {
+                    bool authenticated;
+                    std::string message;
+                    std::string response = AuthenticationProtocol::getResponse(buf);
+                    std::string password = jsonFileLoader::getPasswordHash(server->getUsersFilePath(), username);
+                    std::string hashRes = server->hashPassword(password, challenge);
+                    authenticated = response.compare(hashRes) == 0;
+                    message = AuthenticationProtocol::createAuthenticatedFor(authenticated);
+                    conn.sendMessage(sockfd, message);
+                    break;
+                }
+                case 5:                 //reservation
+                {
+                    Reservation res = CommunicationProtocol::getReservation(buf);
+                    jsonFileLoader::addReservation(server->getCalendarFilePath(), res, username);
+                    //TODO fake to test client
+                    conn.sendMessage(sockfd, CommunicationProtocol::createReservedFor(false, Reservation::missingReservation));
+                    break;
+                }
+                case 7:                 //unlock
+                    break;
+                case 9:                 //getCalendar
+                    break;
+                case 11:                //cancel
+                    break;
+                default:
+                    throw std::runtime_error("Unsupported action");
             }
-            case 3:                 //response
-            {
-                bool authenticated;
-                std::string message;
-                std::string response = AuthenticationProtocol::getResponse(buf);
-                std::string password = jsonFileLoader::getPasswordHash(server->getUsersFilePath(), username);
-                std::string hashRes = server->hashPassword(password, challenge);
-                authenticated = response.compare(hashRes) == 0;
-                message = AuthenticationProtocol::createAuthenticatedFor(authenticated);
-                conn.sendMessage(sockfd, message);
-                break;
-            }
-            case 5:                 //reservation
-            {
-                Reservation res = CommunicationProtocol::getReservation(buf);
-                jsonFileLoader::addReservation(server->getCalendarFilePath(), res, username);
-                break;
-            }
-            case 7:                 //unlock
-                break;
-            case 9:                 //getCalendar
-                break;
-            case 11:                //cancel
-                break;
-            default:
-                throw std::runtime_error("Unsupported action");
+            buf.clear();
         }
-        buf.clear();
+    } catch(std::runtime_error& err) {
+        std::cout << err.what() << std::endl;
     }
 
     close(sockfd);

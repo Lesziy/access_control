@@ -3,3 +3,4 @@ project(access_control)
 
 add_subdirectory(terminal-client)
 add_subdirectory(app-server)
+add_subdirectory(snippets)

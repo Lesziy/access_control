@@ -10,7 +10,7 @@
 
 #include <ctime>
 #include "json.hpp"
-#include "reservation.hpp"
+#include "reservation.h"
 
 using json = nlohmann::json;
 
