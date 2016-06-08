@@ -16,46 +16,45 @@ void Client::start() {
 }
 
 void Client::authenticate() {
+    using namespace utils;
     using auth = AuthenticationProtocol;
     do {
-        utils::print("Enter login: ");
-        getline(std::cin, login_);
+        print("Enter login: ");
+        login_ = getLine();
 
-        utils::print("Enter password: ");
-        utils::enablePasswordMode(true);
-        std::string password;
-        getline(std::cin, password);
-        utils::enablePasswordMode(false);
-        utils::println();
+        print("Enter password: ");
+        enablePasswordMode(true);
+        auto password = getLine();
+        enablePasswordMode(false);
+        println();
 
         conn_.sendMessage(auth::makeHandshake(login_));
         auto challenge = auth::getChallenge(conn_.receiveMessage());
         std::string response = utils::hashPassword(password, challenge);
         conn_.sendMessage(auth::makeResponse(response));
     } while(!auth::isAuthenticated(conn_.receiveMessage()));
-    utils::println("Logged in.");
+    println("Logged in.");
 }
 
 int Client::chooseCommand() {
-	static const std::map<int, std::string> options{
-		{ 1, "Reserve time on remote machine" },
-		{ 2, "Unlock my IP on remote machine" },
-		{ 3, "Cancel my reservation" },
-		{ 4, "Exit" }
-	};
+    static const std::map<int, std::string> actions {
+        { 1, "Reserve time on remote machine" },
+        { 2, "Unlock my IP on remote machine" },
+        { 3, "Cancel my reservation" },
+        { 4, "Exit" }
+    };
 
-    std::cout << "Choose action: " << std::endl;
-	for(auto & option : options)
-		std::cout << "[" << option.first << "] " << option.second << std::endl;
+    utils::println("Choose action: ");
+	for(auto & action : actions)
+        utils::println("[" + std::to_string(action.first) + "] " + action.second);
 
-    std::string decision;
-	std::cout << "Choice: ";
-    getline(std::cin, decision);
+    utils::print("Choice: ");
+    auto decision = utils::getLine();
 	return stoi(decision);
 }
 
 void Client::executeCommand(int decision) {
-	static const std::map<int, std::function<void()>> handlers{
+	static const std::map<int, std::function<void()>> handlers {
         { 1, [this]{ makeReservation(); } },
         { 2, [this]{ unlockIpAddress(); } },
         { 3, [this]{ cancelReservation(); } },
@@ -68,35 +67,29 @@ void Client::executeCommand(int decision) {
 }
 
 void Client::makeReservation() {
-
     do {
         try {
-            std::cout << "Date (ex. 01.01.2014 12:54:12): ";
-            std::string date;
-            getline(std::cin, date);
+            utils::print("Date (ex. 01.01.2014 12:54:12): ");
+            auto date = utils::getLine();
 
-            std::cout << "Duration (in hours): ";
-            std::string duration;
-            getline(std::cin, duration);
+            utils::print("Duration (in hours): ");
+            auto duration = utils::getLine();
+
             auto reservation = Reservation::create(date, std::stoi(duration));
             conn_.sendMessage(CommunicationProtocol::createReservationFor(reservation));
             break;
         } catch(std::runtime_error& err) {
-            std::cout << "Invalid input. Try once again." << std::endl;
+            utils::println("Invalid input. Try once again.");
         }
     } while(true);
 
-    try {
-        auto isReserved = CommunicationProtocol::isReserved(conn_.receiveMessage());
-        if(isReserved.first)
-            std::cout << "Reservation successful" << std::endl;
-        else {
-            std::cout << "Specified date already reserved" << std::endl;
-            std::cout << isReserved.second.startTimeToString() << " "
-                      << isReserved.second.duration() << " hours." << std::endl;
-        }
-    } catch(std::runtime_error& error) {
-        std::cout << error.what();
+    auto isReserved = CommunicationProtocol::isReserved(conn_.receiveMessage());
+    if(isReserved.first)
+        utils::println("Reservation successful");
+    else {
+        utils::println("Specified date already reserved");
+        utils::println(isReserved.second.startTimeToString() + " " +
+                       std::to_string(isReserved.second.duration()) + " hours.");
     }
 }
 
@@ -106,41 +99,44 @@ std::vector<Reservation> Client::getCalendar() {
 }
 
 void Client::cancelReservation() {
-    std::cout << "Getting info about your reservations..." << std::endl;
+    utils::println("Getting info about your reservations...");
     auto all = getCalendar();
     all.erase(std::remove_if(all.begin(), all.end(), [this](Reservation& elem){ return elem.username() != login_; }),
               all.end());
     int counter = 1;
     for(auto& singleReservation: all)
-        std::cout << "[" << counter++ << "] " << singleReservation.startToString() << std::endl;
-    std::cout << "Choose date to cancel (by number in brackets or 0 to cancel): ";
+        utils::println("[" + std::to_string(counter++ ) + "] " + singleReservation.startToString());
+    utils::println("Choose date to cancel (by number in brackets or 0 to cancel): ");
 
-    std::string decision;
-    getline(std::cin, decision);
-    unsigned long dec = std::stoul(decision);
+    auto decision = utils::getLine();
 
     if(!utils::isInteger(decision)) {
-        std::cout << "Invalid number provided." << std::endl;
-    } else if(dec == 0)
-        return;
-    else if(dec < 1 || dec > counter) {
-        std::cout << "Invalid number provided." << std::endl;
+        utils::println("Invalid input.");
         return;
     }
 
-    std::cout << "Cancelling chosen date...";
+    unsigned long dec = std::stoul(decision);
+
+    if(dec == 0)
+        return;
+    else if(dec < 1 || dec > counter) {
+        utils::println("Not valid choice");
+        return;
+    }
+
+    utils::print("Cancelling chosen date...");
     conn_.sendMessage(CommunicationProtocol::createCancelFor(all.at(dec - 1)));
     if(CommunicationProtocol::getCanceled(conn_.receiveMessage()))
-        std::cout << "Reservation cancelled." << std::endl;
+        utils::println("Reservation cancelled.");
     else
-        std::cout << "Reservation couldn't be cancelled." << std::endl;
+        utils::println("Reservation couldn't be cancelled.");
 }
 
 void Client::unlockIpAddress() {
     conn_.sendMessage(CommunicationProtocol::createUnlockFor());
-    std::cout << "Unlock request sent." << std::endl;
+    utils::println("Unlock request sent.");
     if(CommunicationProtocol::isUnlocked(conn_.receiveMessage()))
-        std::cout << "IP unlocked." << std::endl;
+        utils::println("IP unlocked.");
     else
-        std::cout << "IP couldn't be unlocked." << std::endl;
+        utils::println("IP couldn't be unlocked.");
 }

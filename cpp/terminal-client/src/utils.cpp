@@ -28,3 +28,10 @@ void utils::print(std::string &&msg) {
 void utils::println(std::string &&msg) {
     std::cout << msg << std::endl;
 }
+
+std::string utils::getLine() {
+    std::string buffer;
+    getline(std::cin, buffer);
+    return buffer;
+}
+

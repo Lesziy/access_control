@@ -13,4 +13,5 @@ namespace utils {
                              const std::string & challenge);
     void print(std::string&& msg);
     void println(std::string&& msg = "");
+    std::string getLine();
 }
