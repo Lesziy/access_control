@@ -9,12 +9,6 @@ bool isValidIPv4Address(const std::string &ip) {
     return inet_pton(AF_INET, ip.c_str(), &(sa.sin_addr)) == 1;
 }
 
-bool isInteger(const std::string &s)
-{
-    return !s.empty()
-           && std::find_if(s.begin(), s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
-}
-
 int main(int argc, char** argv) {
 
     if(argc != 3) {

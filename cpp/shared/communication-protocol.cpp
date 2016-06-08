@@ -26,7 +26,7 @@ const std::string CommunicationProtocol::createReservedFor(
         const bool isReserved, const Reservation& reservation) {
     auto msg = basicMessage("reserved");
     msg["value"] = isReserved;
-    if(isReserved)
+    if(!isReserved)
         msg["overlap"] = fromReservation(reservation);
     return msg.dump();
 }
@@ -60,7 +60,7 @@ const std::string CommunicationProtocol::createCalendarFor(
 
 const std::string CommunicationProtocol::createCancelFor(const Reservation& reservation) {
     auto msg = basicMessage("cancel");
-    msg["start"] = reservation.startDateToString();
+    msg["start"] = reservation.startToString();
     return msg.dump();
 }
 
@@ -82,7 +82,7 @@ const std::pair<bool, Reservation> CommunicationProtocol::isReserved(
 
     auto msg = json::parse(reservedMessage);
     bool success = msg["value"];
-    return std::make_pair(success, success ? getReservation(msg["overlap"].dump()) : Reservation::missingReservation);
+    return std::make_pair(success, !success ? getReservation(msg["overlap"].dump()) : Reservation::missingReservation);
 }
 
 const bool CommunicationProtocol::unlockRequested(const std::string &unlockMessage) {
@@ -103,7 +103,7 @@ const bool CommunicationProtocol::calendarRequested(
 }
 
 const std::vector<Reservation> CommunicationProtocol::getCalendar(
-        const std::string& calendarMessage) {
+    const std::string& calendarMessage) {
     auto msg = json::parse(calendarMessage);
     auto container = msg["reservations"];
     std::vector<Reservation> reservations;

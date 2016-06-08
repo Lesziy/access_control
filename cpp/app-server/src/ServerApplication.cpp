@@ -117,9 +117,9 @@ void* clientThreadFunction(void *data) {
                     json calendar = jsonFileManager::getJson(server->getCalendarFilePath());
 
                     if(CalendarManager::addReservation(server->getCalendarFilePath(), res))
-                        conn.sendMessage(sockfd, CommunicationProtocol::createReservedFor(true, res));
+                        conn.sendMessage(sockfd, CommunicationProtocol::createReservedFor(true, Reservation::missingReservation));
                     else
-                        conn.sendMessage(sockfd, CommunicationProtocol::createReservedFor(false, Reservation::missingReservation));
+                        conn.sendMessage(sockfd, CommunicationProtocol::createReservedFor(false, res));
                     break;
                 }
                 case 7:                 //unlock

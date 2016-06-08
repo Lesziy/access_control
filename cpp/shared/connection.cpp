@@ -2,6 +2,7 @@
 // Created by julian on 29.05.16.
 //
 
+#include <iostream>
 #include "connection.h"
 
 void Connection::clean() {
