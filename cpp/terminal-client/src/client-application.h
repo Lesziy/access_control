@@ -3,34 +3,30 @@
 #include <iostream>
 #include <cstdio>
 #include <map>
-#include <termios.h>
 #include <functional>
 
 #include "auth-protocol.h"
 #include "client-connection.h"
 #include "reservation.h"
-#include "sha3.h"
 #include "communication-protocol.h"
 #include "utils.h"
 
-class ClientApplication {
+class Client {
 public:
-    ClientApplication(const std::string & ip, const std::string & port);
-    ~ClientApplication();
-    void run();
+    Client(const std::string &ip, const std::string &port);
+    ~Client();
+    void start();
 private:
     void authenticate();
-    std::string hashPassword(const std::string & password, const std::string & challenge);
+    void makeReservation();
+    void unlockIpAddress();
+    void cancelReservation();
+
     int chooseCommand();
     void executeCommand(int);
-    void reserveRemoteMachine();
-    void showMyReservations();
     std::vector<Reservation> getCalendar();
-    void setPasswordMode(bool);
-    void unlockMeOnRemote();
     
     ClientConnection conn_;
-    AuthenticationProtocol autProt_;
     bool running_ = true;
     std::string login_;
 };

@@ -1,49 +1,42 @@
 #include "client-application.h"
 
-ClientApplication::ClientApplication(const std::string & ip, const std::string & port) {
+Client::Client(const std::string & ip, const std::string & port) {
     conn_ = ClientConnection::establishWith(ip, port);
 }
 
-ClientApplication::~ClientApplication() {
+Client::~Client() {
     conn_.clean();
 }
 
-void ClientApplication::run() {
+void Client::start() {
     authenticate();
     while (running_)
     	executeCommand( chooseCommand() );
-    std::cout << "Terminating application..." << std::endl;
+    utils::println("Application terminated successfuly.");
 }
 
-void ClientApplication::authenticate() {
+void Client::authenticate() {
+    using auth = AuthenticationProtocol;
     do {
-        std::cout << "Enter login: ";
+        utils::print("Enter login: ");
         getline(std::cin, login_);
 
-        std::cout << "Enter password: ";
-        setPasswordMode(true);
+        utils::print("Enter password: ");
+        utils::enablePasswordMode(true);
         std::string password;
         getline(std::cin, password);
-        setPasswordMode(false);
-        std::cout << std::endl << "Authenticating..." << std::endl;
+        utils::enablePasswordMode(false);
+        utils::println();
 
-        conn_.sendMessage(autProt_.createHandshakeFor(login_));
-        auto challenge = autProt_.getChallenge(conn_.receiveMessage());
-        std::string response = hashPassword(password, challenge);
-        conn_.sendMessage(autProt_.createResponseFor(response));
-    } while(!autProt_.isAuthenticated(conn_.receiveMessage()));
+        conn_.sendMessage(auth::makeHandshake(login_));
+        auto challenge = auth::getChallenge(conn_.receiveMessage());
+        std::string response = utils::hashPassword(password, challenge);
+        conn_.sendMessage(auth::makeResponse(response));
+    } while(!auth::isAuthenticated(conn_.receiveMessage()));
+    utils::println("Logged in.");
 }
 
-std::string ClientApplication::hashPassword(const std::string & password, const std::string & challenge) {
-    SHA3 sha3;
-    std::string passwordHash = sha3(password);
-    std::string response = challenge;
-    response.append(passwordHash);
-    response = sha3(response);
-    return response;
-}
-
-int ClientApplication::chooseCommand() {
+int Client::chooseCommand() {
 	static const std::map<int, std::string> options{
 		{ 1, "Reserve time on remote machine" },
 		{ 2, "Unlock my IP on remote machine" },
@@ -61,11 +54,11 @@ int ClientApplication::chooseCommand() {
 	return stoi(decision);
 }
 
-void ClientApplication::executeCommand(int decision) {
+void Client::executeCommand(int decision) {
 	static const std::map<int, std::function<void()>> handlers{
-        { 1, [this]{ reserveRemoteMachine(); } },
-        { 2, [this]{ unlockMeOnRemote(); } },
-        { 3, [this]{ showMyReservations(); } },
+        { 1, [this]{ makeReservation(); } },
+        { 2, [this]{ unlockIpAddress(); } },
+        { 3, [this]{ cancelReservation(); } },
         { 4, [this]{ running_ = false; } }
     };
 
@@ -74,7 +67,7 @@ void ClientApplication::executeCommand(int decision) {
         (optionalHandler->second)();
 }
 
-void ClientApplication::reserveRemoteMachine() {
+void Client::makeReservation() {
 
     do {
         try {
@@ -107,19 +100,12 @@ void ClientApplication::reserveRemoteMachine() {
     }
 }
 
-void ClientApplication::setPasswordMode(bool enable) {
-    struct termios tty;
-    tcgetattr(STDIN_FILENO, &tty);
-    enable ? tty.c_lflag &= ~ECHO : tty.c_lflag |= ECHO;
-    (void) tcsetattr(STDIN_FILENO, TCSANOW, &tty);
-}
-
-std::vector<Reservation> ClientApplication::getCalendar() {
+std::vector<Reservation> Client::getCalendar() {
     conn_.sendMessage(CommunicationProtocol::createGetCalendarFor());
     return CommunicationProtocol::getCalendar(conn_.receiveMessage());
 }
 
-void ClientApplication::showMyReservations() {
+void Client::cancelReservation() {
     std::cout << "Getting info about your reservations..." << std::endl;
     auto all = getCalendar();
     all.erase(std::remove_if(all.begin(), all.end(), [this](Reservation& elem){ return elem.username() != login_; }),
@@ -131,9 +117,9 @@ void ClientApplication::showMyReservations() {
 
     std::string decision;
     getline(std::cin, decision);
-    int dec = std::stoi(decision);
+    unsigned long dec = std::stoul(decision);
 
-    if(!isInteger(decision)) {
+    if(!utils::isInteger(decision)) {
         std::cout << "Invalid number provided." << std::endl;
     } else if(dec == 0)
         return;
@@ -150,7 +136,7 @@ void ClientApplication::showMyReservations() {
         std::cout << "Reservation couldn't be cancelled." << std::endl;
 }
 
-void ClientApplication::unlockMeOnRemote() {
+void Client::unlockIpAddress() {
     conn_.sendMessage(CommunicationProtocol::createUnlockFor());
     std::cout << "Unlock request sent." << std::endl;
     if(CommunicationProtocol::isUnlocked(conn_.receiveMessage()))

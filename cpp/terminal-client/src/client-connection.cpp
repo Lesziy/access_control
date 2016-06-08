@@ -6,7 +6,7 @@ ClientConnection ClientConnection::establishWith(const std::string & serverIp, c
         throw std::runtime_error("Error occured while creating socket.");
     auto address = initialiseAddress(serverIp, port);
     if( connect(conn.socketfd_, (struct sockaddr *) &address, sizeof(address)) < 0 )
-        throw std::runtime_error("Connection to server couldn't be stablished.");
+        throw std::runtime_error("Connection to server couldn't be established.");
     return conn;
 }
 

@@ -1,6 +1,16 @@
 #pragma once
 
-inline bool isInteger(const std::string &s) {
-    return !s.empty()
-           && std::find_if(s.begin(), s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
+#include <algorithm>
+#include <iostream>
+#include <termios.h>
+#include <unistd.h>
+#include "sha3.h"
+
+namespace utils {
+    bool isInteger(const std::string &s);
+    void enablePasswordMode(bool enable);
+    std::string hashPassword(const std::string & password,
+                             const std::string & challenge);
+    void print(std::string&& msg);
+    void println(std::string&& msg = "");
 }
