@@ -19,9 +19,10 @@ public:
 	Logger(std::string logFilePath);
 	~Logger();
 	void log(std::string ip, std::string user, std::string type, std::string description);
-	std::string getCurrentTime();
+	
 
 private:
+	std::string getCurrentTime();
 	std::ofstream logStream;
 };
 

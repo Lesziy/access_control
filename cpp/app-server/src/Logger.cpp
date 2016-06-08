@@ -19,7 +19,7 @@ std::string Logger::getCurrentTime() {
 	char dateArray[80];
 
 	time(&time_1);
-	localtime_s(date, &time_1);
+	date = localtime(&time_1);
 	strftime(dateArray, 80, "%H:%M:%S/%d/%m/%Y", date);
 	
 	std::string properData(dateArray);
