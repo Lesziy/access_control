@@ -5,7 +5,6 @@
  *      Author: secman
  */
 
-#include <iostream>
 #include "ServerApplication.h"
 
 int main() {

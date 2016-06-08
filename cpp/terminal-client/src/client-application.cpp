@@ -128,7 +128,7 @@ void Client::cancelReservation() {
         return;
     }
 
-    std::cout << "Cancelling chosen date...";
+    std::cout << "Cancelling chosen date..." << std::endl;
     conn_.sendMessage(CommunicationProtocol::createCancelFor(all.at(dec - 1)));
     if(CommunicationProtocol::getCanceled(conn_.receiveMessage()))
         std::cout << "Reservation cancelled." << std::endl;

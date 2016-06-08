@@ -19,6 +19,7 @@
 #include "jsonFileManager.h"
 #include "calendarManager.h"
 #include "Logger.h"
+#include "IptablesManager.h"
 
 #define MAXDATASIZE 200
 
@@ -34,6 +35,10 @@ public:
 
     const std::string getUsersFilePath() const {
         return userFilePath;
+    }
+
+    const std::string getServerPort() const {
+        return serverPort;
     }
 
     std::string hashPassword(const std::string & passwordHash, const std::string & challenge);

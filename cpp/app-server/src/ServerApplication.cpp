@@ -108,6 +108,7 @@ void* clientThreadFunction(void *data) {
                     authenticated = response.compare(hashRes) == 0;
                     message = AuthenticationProtocol::createAuthenticatedFor(authenticated);
                     conn.sendMessage(sockfd, message);
+                    challenge = "";                                                                             // it's a protection before many times using challenge
                     break;
                 }
                 case 5:                 //reservation
@@ -123,7 +124,17 @@ void* clientThreadFunction(void *data) {
                     break;
                 }
                 case 7:                 //unlock
+                {
+                    socklen_t len;
+                    struct sockaddr_storage addr;
+                    char ip[INET_ADDRSTRLEN];
+                    len = sizeof addr;
+                    getpeername(sockfd, (struct sockaddr*)&addr, &len);
+                    struct sockaddr_in *s = (struct sockaddr_in *)&addr;
+                    inet_ntop(AF_INET, &s->sin_addr, ip, INET_ADDRSTRLEN);
+                    conn.sendMessage(sockfd, CommunicationProtocol::createUnlockedFor(IptablesManager::unlock(username, server->getServerPort(), ip, server->getCalendarFilePath())));
                     break;
+                }
                 case 9:                 //getCalendar
                 {
                     std::vector <Reservation> reservations = CalendarManager::getReservations(server->getCalendarFilePath());
