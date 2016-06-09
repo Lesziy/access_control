@@ -32,9 +32,8 @@ public:
             const std::string & reservationMessage);
     static const std::pair<bool, Reservation> isReserved(
             const std::string & reservedMessage);
-    static const bool unlockRequested(const std::string &unlockMessage);
+    static const std::string ipToUnlock(const std::string &unlockMessage);
     static const bool isUnlocked(const std::string & unlockedMessage);
-    static const bool calendarRequested(const std::string &getCalendarMessage);
     static const std::vector<Reservation> getCalendar(
             const std::string & calendarMessage);
     static const Reservation getCancel(const std::string & cancelMessage);

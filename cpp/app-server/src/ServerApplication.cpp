@@ -126,7 +126,12 @@ void* clientThreadFunction(void *data) {
                 }
                 case 7:                 //unlock
                 {
-                    conn.sendMessage(sockfd, CommunicationProtocol::createUnlockedFor(IptablesManager::unlock(username, clientIP, server->getCalendarFilePath())));
+                    auto ipToUnlock = CommunicationProtocol::ipToUnlock(buf);
+                    conn.sendMessage(sockfd,
+                                     CommunicationProtocol::createUnlockedFor(
+                                             IptablesManager::unlock(username,
+                                                                     ipToUnlock == "" ? clientIP : ipToUnlock,
+                                                                     server->getCalendarFilePath())));
                     break;
                 }
                 case 9:                 //getMyMessages
@@ -144,7 +149,7 @@ void* clientThreadFunction(void *data) {
                 }
                 case 13: // getMyReservations
                 {
-                    std::vector <Reservation> reservations = CalendarManager::getReservations(server->getCalendarFilePath());
+                    auto reservations = CalendarManager::getReservations(server->getCalendarFilePath());
                     reservations.erase(std::remove_if(reservations.begin(), reservations.end(),
                                        [&](Reservation& elem){ return elem.username() != username; }),
                                        reservations.end());

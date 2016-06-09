@@ -85,21 +85,15 @@ const std::pair<bool, Reservation> CommunicationProtocol::isReserved(
     return std::make_pair(success, !success ? getReservation(msg["overlap"].dump()) : Reservation::missingReservation);
 }
 
-const bool CommunicationProtocol::unlockRequested(const std::string &unlockMessage) {
+const std::string CommunicationProtocol::ipToUnlock(const std::string &unlockMessage) {
     auto msg = json::parse(unlockMessage);
-    return msg["msg"] == "unlock";
+    return msg["ip"];
 }
 
 const bool CommunicationProtocol::isUnlocked(
         const std::string& unlockedMessage) {
     auto msg = json::parse(unlockedMessage);
     return msg["value"];
-}
-
-const bool CommunicationProtocol::calendarRequested(
-        const std::string &getCalendarMessage) {
-    auto msg = json::parse(getCalendarMessage);
-    return msg["msg"] == "getMyMessages";
 }
 
 const std::vector<Reservation> CommunicationProtocol::getCalendar(
