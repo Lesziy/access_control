@@ -24,7 +24,7 @@ private:
 
     int chooseCommand();
     void executeCommand(int);
-    std::vector<Reservation> getCalendar();
+    std::vector<Reservation> getMyMessages();
     
     ClientConnection conn_;
     bool running_ = true;

@@ -41,6 +41,10 @@ public:
     static const bool getCanceled(const std::string & canceledMessage);
     static const int getMessageType(const std::string & message);
 
+    static const std::string createMyReservationsRequest();
+    static const std::string createMyReservationsResponse(std::vector<Reservation> &reservations);
+    static const std::vector<Reservation> getMyReservations(const std::string & myReservationsMessage);
+
 private:
     static const json basicMessage(const std::string & title);
 

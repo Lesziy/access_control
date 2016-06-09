@@ -43,7 +43,7 @@ const std::string CommunicationProtocol::createUnlockedFor(
 }
 
 const std::string CommunicationProtocol::createGetCalendarFor() {
-    return basicMessage("getCalendar").dump();
+    return basicMessage("getMyMessages").dump();
 }
 
 const std::string CommunicationProtocol::createCalendarFor(
@@ -99,7 +99,7 @@ const bool CommunicationProtocol::isUnlocked(
 const bool CommunicationProtocol::calendarRequested(
         const std::string &getCalendarMessage) {
     auto msg = json::parse(getCalendarMessage);
-    return msg["msg"] == "getCalendar";
+    return msg["msg"] == "getMyMessages";
 }
 
 const std::vector<Reservation> CommunicationProtocol::getCalendar(
@@ -135,10 +135,11 @@ const int CommunicationProtocol::getMessageType(const std::string &message) {
             {"reserved", 6},
             {"unlock", 7},
             {"unlocked", 8},
-            {"getCalendar", 9},
+            {"getMyMessages", 9},
             {"calendar", 10},
             {"cancel", 11},
-            {"canceled", 12}
+            {"canceled", 12},
+            {"getMyReservations", 13}
     };
     auto msg = json::parse(message);
     try {
@@ -153,3 +154,23 @@ const int CommunicationProtocol::getMessageType(const std::string &message) {
 const json CommunicationProtocol::basicMessage(const std::string & title) {
     return { {"msg", title}};
 }
+
+const std::string CommunicationProtocol::createMyReservationsRequest() {
+    return basicMessage("getMyReservations").dump();
+}
+
+const std::vector<Reservation> CommunicationProtocol::getMyReservations(const std::string &myReservationsMessage) {
+    return getCalendar(myReservationsMessage);
+}
+
+const std::string CommunicationProtocol::createMyReservationsResponse(std::vector<Reservation> &reservations) {
+    auto msg = json::parse(createCalendarFor(reservations));
+    msg["msg"] = "myReservations";
+    return msg.dump();
+}
+
+
+
+
+
+
