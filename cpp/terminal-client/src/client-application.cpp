@@ -19,8 +19,10 @@ void Client::authenticate() {
     using namespace utils;
     using auth = AuthenticationProtocol;
     do {
-        print("Enter login: ");
-        login_ = getLine();
+        do {
+            print("Enter login: ");
+            login_ = getLine();
+        } while(!containsAlnumOnly(login_));
 
         print("Enter password: ");
         enablePasswordMode(true);

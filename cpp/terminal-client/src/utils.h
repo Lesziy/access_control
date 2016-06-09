@@ -8,6 +8,7 @@
 
 namespace utils {
     bool containsDigitsOnly(const std::string &s);
+    bool containsAlnumOnly(const std::string &s);
     void enablePasswordMode(bool enable);
     std::string hashPassword(const std::string & password,
                              const std::string & challenge);

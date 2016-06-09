@@ -35,3 +35,10 @@ std::string utils::getLine() {
     return buffer;
 }
 
+bool utils::containsAlnumOnly(const std::string &s) {
+    return !s.empty()
+           && std::find_if(s.begin(), s.end(), [](char c) { return !std::isalnum(c); }) == s.end();
+}
+
+
+
