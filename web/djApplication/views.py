@@ -96,9 +96,9 @@ def socketReservation(sessionSocket, reservations, reservationJSON, user):
       response = getResponse(sessionSocket)
       response = json.loads(response)
       if(response["value"]):
-         logging.info('%s requested reservation on %s.%d.%s from %s for %d hours', user, reservationJSON['day'],months.index(reservationJSON['month'])+1 ,reservationJSON['year'], startHour, duration)
+         logging.info('%s requested reservation on %s.%d.%s since %s:00:00 for %d hours', user, reservationJSON['day'],months.index(reservationJSON['month'])+1 ,reservationJSON['year'], startHour, duration)
       else:
-         logging.warning('%s requested reservation on %s.%d.%s from %s for %d hours failed', user, reservationJSON['day'],months.index(reservationJSON['month'])+1 ,reservationJSON['year'], startHour, duration)
+         logging.warning('%s requested reservation on %s.%d.%s since %s:00:00 for %d hours failed', user, reservationJSON['day'],months.index(reservationJSON['month'])+1 ,reservationJSON['year'], startHour, duration)
          returned = False
    return returned
 def socketResignation(sessionSocket, resignations, resignationJSON, user):
@@ -137,9 +137,9 @@ def socketResignation(sessionSocket, resignations, resignationJSON, user):
       response = getResponse(sessionSocket)
       response = json.loads(response)
       if(response["value"]):
-         logging.info('%s requested resignation on %s.%d.%s from %s ', user, resignationJSON['day'],months.index(resignationJSON['month'])+1 ,resignationJSON['year'], startHour)
+         logging.info('%s requested resignation on %s.%d.%s since %s:00:00 ', user, resignationJSON['day'],months.index(resignationJSON['month'])+1 ,resignationJSON['year'], startHour)
       else:
-         logging.warning('%s requested resignation on %s.%d.%s from %s failed', user, resignationJSON['day'],months.index(resignationJSON['month'])+1 ,resignationJSON['year'], startHour)
+         logging.warning('%s requested resignation on %s.%d.%s since %s:00:00 failed', user, resignationJSON['day'],months.index(resignationJSON['month'])+1 ,resignationJSON['year'], startHour)
          returned = False
    return returned
 #function creating json calendar object
@@ -208,6 +208,9 @@ def logout(request):
 def login(request):
    if("username" in request.session):
       return True
+   if ('{' in request.POST['user'] or '}' in request.POST['user']):
+      logging.error("username with { }")
+      return False
    initializeSocket(request)
    if(tryConnect(sessions[request.session.session_key],request.POST['user'], request.POST['password'])):
       logging.info("user %s logged in", request.POST['user'])
