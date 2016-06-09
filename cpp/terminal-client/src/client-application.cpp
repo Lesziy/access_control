@@ -51,8 +51,10 @@ int Client::chooseCommand() {
     do {
         utils::print("Choice: ");
         auto decision = utils::getLine();
-        if(utils::isInteger(decision))
-            return stoi(decision);
+        try {
+            if(utils::containsDigitsOnly(decision))
+                return stoi(decision);
+        } catch(std::out_of_range&) {}
     } while(true);
 }
 
@@ -78,13 +80,13 @@ void Client::makeReservation() {
             utils::print("Duration (in hours): ");
             auto duration = utils::getLine();
 
-            if(!utils::isInteger(duration))
+            if(!utils::containsDigitsOnly(duration))
                 throw std::runtime_error("");
 
             auto reservation = Reservation::create(date, std::stoi(duration));
             conn_.sendMessage(CommunicationProtocol::createReservationFor(reservation));
             break;
-        } catch(std::runtime_error& err) {
+        } catch(std::exception& err) {
             utils::println("Invalid input. Try once again.");
         }
     } while(true);
@@ -122,16 +124,20 @@ void Client::cancelReservation() {
 
     auto decision = utils::getLine();
 
-    if(!utils::isInteger(decision)) {
+    if(!utils::containsDigitsOnly(decision)) {
         utils::println("Invalid input.");
         return;
     }
 
-    unsigned long dec = std::stoul(decision);
+    unsigned long dec;
 
-    if(dec == 0)
-        return;
-    else if(dec < 1 || dec > counter) {
+    try {
+        dec = std::stoul(decision);
+        if(dec == 0)
+            return;
+        else if(dec < 1 || dec > counter)
+            throw std::logic_error("");
+    } catch(std::logic_error&) {
         utils::println("Not valid choice");
         return;
     }
