@@ -103,16 +103,14 @@ void Client::makeReservation() {
     }
 }
 
-std::vector<Reservation> Client::getCalendar() {
-    conn_.sendMessage(CommunicationProtocol::createGetCalendarFor());
-    return CommunicationProtocol::getCalendar(conn_.receiveMessage());
+std::vector<Reservation> Client::getMyMessages() {
+    conn_.sendMessage(CommunicationProtocol::createMyReservationsRequest());
+    return CommunicationProtocol::getMyReservations(conn_.receiveMessage());
 }
 
 void Client::cancelReservation() {
     utils::println("Getting info about your reservations...");
-    auto all = getCalendar();
-    all.erase(std::remove_if(all.begin(), all.end(), [this](Reservation& elem){ return elem.username() != login_; }),
-              all.end());
+    auto all = getMyMessages();
 
     if(all.size() == 0) {
         utils::println("Reservations to cancel not found.");

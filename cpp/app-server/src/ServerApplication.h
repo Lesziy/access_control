@@ -13,6 +13,7 @@
 #include <cstdio>
 #include <fstream>
 #include <pthread.h>
+#include <algorithm>
 
 #include "auth-protocol.h"
 #include "ServerConnection.h"
