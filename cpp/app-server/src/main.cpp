@@ -8,8 +8,13 @@
 #include "ServerApplication.h"
 
 int main() {
-    ServerApplication server;
-    server.run();
+
+    try {
+        ServerApplication server;
+        server.run();
+    } catch(std::runtime_error& err) {
+        std::cout << err.what() << std::endl;
+    }
 
     return 0;
 }
