@@ -46,10 +46,43 @@ def processReservation(request):
    ##convert request to utf-8
    reservation['month'] = reservation['month'].encode("utf-8")
    time = countReservations(reservation['time'])
-   for exclusiveReservation in time:
-      logging.info('%s requested reservation on %s.%d.%s from %s to %s', request.session["username"], reservation['day'],months.index(reservation['month'])+1 ,reservation['year'],exclusiveReservation[0],exclusiveReservation[-1])
+   socketReservation(sessions[request.session.session_key], time, reservation, request.session["username"])
+      
    return "reservation accepted"
 
+def socketReservation(sessionSocket, reservations, reservationJSON, user):
+   duration = 0
+   for exclusiveReservation in reservations:
+      duration = exclusiveReservation[-1] - exclusiveReservation[0]
+      month = months.index(reservationJSON['month'])+1
+      if(month<10):
+         month = '0'+str(month)
+      else:
+         month = str(month)
+      year = reservationJSON['year']
+      day = reservationJSON['day']
+      if(day<10):
+         day = '0'+str(day)
+      else:
+         day = str(day)
+      startHour = 0
+      if(exclusiveReservation[0]<10):
+         startHour = '0' + str(exclusiveReservation[0])
+      else:
+         startHour = str(exclusiveReservation[0])
+      msg = "{\"msg\" :\"reservation\",\
+      \"start\": \"" + day + "."+ month + "." + year + " " + startHour +":00:00\", \
+      \"duration\": " + str(duration) + " \
+      }"
+      
+      sessionSocket.send(msg)
+      print msg
+      response = getResponse(sessionSocket)
+      print response
+      response = json.loads(response)
+      if(response["value"]):
+         logging.info('%s requested reservation on %s.%d.%s from %s for %d hours', user, reservationJSON['day'],months.index(reservationJSON['month'])+1 ,reservationJSON['year'], startHour, duration)
+   return
 #function creating json calendar object
 
 def jsonCalendar(request):
@@ -94,6 +127,9 @@ def loginSite(request):
 def logout(request):
    logging.info("user %s logged out", request.session["username"])
    del request.session["username"]
+   if(request.session.session_key in sessions):
+      sessions[request.session.session_key].close()
+      del sessions[request.session.session_key]
    return
 
 #simple authorization method
@@ -103,6 +139,8 @@ def login(request):
       logging.info("user %s logged in", request.POST['user'])
       return True
    logging.error("tried to log in as %s failed", request.POST['user'])
+   sessions[request.session.session_key].close()
+   del sessions[request.session.session_key]
    return False
 
 #function for dividing periods of requested reserved time
@@ -148,7 +186,6 @@ def tryConnect(sessionSocket, username, password):
    }")
    response = getResponse(sessionSocket)
    response = json.loads(response)
-   print response["value"]
    if(response["value"] == True):
       return True
    return False
@@ -156,7 +193,8 @@ def getResponse(sessionSocket):
    response = ''
    while(True):
       response = response + sessionSocket.recv(100)
+      print "dada" + response + str(response.count('}')) +"  "+ str(response.count('}'))
       if(response.count('{')==response.count('}')):
          break
+      
    return response
-
