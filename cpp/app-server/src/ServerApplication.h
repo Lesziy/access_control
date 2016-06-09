@@ -37,13 +37,14 @@ public:
 
     std::string hashPassword(const std::string & passwordHash, const std::string & challenge);
     std::string generateChallenge();
+    Logger* getLogger();
 
 private:
     void clientThread(int clientFD);
     void loadConfiguration();
 
     ServerConnection conn;
-    Logger* log;
+    Logger* logger;
 
     bool running_ = true;
     std::string serverPort;
