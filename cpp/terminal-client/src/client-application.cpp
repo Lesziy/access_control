@@ -45,15 +45,18 @@ int Client::chooseCommand() {
     };
 
     utils::println("Choose action: ");
-	for(auto & action : actions)
+    for(auto & action : actions)
         utils::println("[" + std::to_string(action.first) + "] " + action.second);
 
-    utils::print("Choice: ");
-    auto decision = utils::getLine();
-	return stoi(decision);
+    do {
+        utils::print("Choice: ");
+        auto decision = utils::getLine();
+        if(utils::isInteger(decision))
+            return stoi(decision);
+    } while(true);
 }
 
-void Client::executeCommand(int decision) {
+void Client::executeCommand(int action) {
     static const std::map<int, std::function<void()>> handlers {
         { 1, [this]{ makeReservation(); } },
         { 2, [this]{ unlockIpAddress(); } },
@@ -61,7 +64,7 @@ void Client::executeCommand(int decision) {
         { 4, [this]{ running_ = false; } }
     };
 
-    auto optionalHandler = handlers.find(decision);
+    auto optionalHandler = handlers.find(action);
     if(optionalHandler != end(handlers))
         (optionalHandler->second)();
 }
@@ -74,6 +77,9 @@ void Client::makeReservation() {
 
             utils::print("Duration (in hours): ");
             auto duration = utils::getLine();
+
+            if(!utils::isInteger(duration))
+                throw std::runtime_error("");
 
             auto reservation = Reservation::create(date, std::stoi(duration));
             conn_.sendMessage(CommunicationProtocol::createReservationFor(reservation));
@@ -103,10 +109,16 @@ void Client::cancelReservation() {
     auto all = getCalendar();
     all.erase(std::remove_if(all.begin(), all.end(), [this](Reservation& elem){ return elem.username() != login_; }),
               all.end());
+
+    if(all.size() == 0) {
+        utils::println("Reservations to cancel not found.");
+        return;
+    }
+
     int counter = 1;
     for(auto& singleReservation: all)
         utils::println("[" + std::to_string(counter++ ) + "] " + singleReservation.startToString());
-    utils::println("Choose date to cancel (by number in brackets or 0 to cancel): ");
+    utils::print("Choose date to cancel (by number in brackets or 0 to cancel): ");
 
     auto decision = utils::getLine();
 
