@@ -16,7 +16,7 @@ namespace argsvalidator {
             return false;
         }
 
-        if(!utils::isInteger(port)) {
+        if(!utils::containsDigitsOnly(port)) {
             utils::println("Provided port is not an integer.");
             return false;
         }

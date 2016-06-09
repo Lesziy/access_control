@@ -1,6 +1,6 @@
 #include "utils.h"
 
-bool utils::isInteger(const std::string &s) {
+bool utils::containsDigitsOnly(const std::string &s) {
     return !s.empty()
            && std::find_if(s.begin(), s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
 }
@@ -28,3 +28,10 @@ void utils::print(std::string &&msg) {
 void utils::println(std::string &&msg) {
     std::cout << msg << std::endl;
 }
+
+std::string utils::getLine() {
+    std::string buffer;
+    getline(std::cin, buffer);
+    return buffer;
+}
+
