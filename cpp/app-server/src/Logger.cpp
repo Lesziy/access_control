@@ -29,24 +29,6 @@ std::string Logger::getCurrentTime() {
 	return properData;
 }
 
-void Logger::log(std::string ip, std::string user, std::string type, std::string description)
-{
-	logStream << getCurrentTime() << "; " << ip << "; " << user << "; " << type << "; " << description << "\n";
-}
-
-std::string Logger::getCurrentTime() {
-    time_t time_1;
-    struct tm * date;
-    char dateArray[80];
-
-    time(&time_1);
-    date = localtime(&time_1);
-    strftime(dateArray, 80, "%H:%M:%S/%d/%m/%Y", date);
-
-    std::string properData(dateArray);
-    return properData;
-}
-
 
 void Logger::log(std::string ip, std::string user, std::string type, std::string description)
 {

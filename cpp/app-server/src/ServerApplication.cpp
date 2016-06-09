@@ -142,17 +142,17 @@ void* clientThreadFunction(void *data) {
                 }
                 case 7:                 //unlock
                 {
-<<<<<<< HEAD
+
                     auto ipToUnlock = CommunicationProtocol::ipToUnlock(buf);
                     conn.sendMessage(sockfd,
                                      CommunicationProtocol::createUnlockedFor(
                                              IptablesManager::unlock(username,
                                                                      ipToUnlock == "" ? clientIP : ipToUnlock,
-                                                                     server->getCalendarFilePath())));
-=======
+                                                                     server->getCalendarFilePath(), logger)));
+
                     conn.sendMessage(sockfd, CommunicationProtocol::createUnlockedFor(IptablesManager::unlock(username, clientIP, server->getCalendarFilePath(), logger)));
                     logger->log(clientIP, username, std::string("UNLOCK"), description);
->>>>>>> refs/remotes/origin/cpp-development
+
                     break;
                 }
                 case 9:                 //getMyMessages
