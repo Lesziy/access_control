@@ -15,7 +15,9 @@ bool IptablesManager::unlock(std::string username, std::string userIP, std::stri
     std::string addCommand = "iptables -A INPUT -p tcp --dport 22 -s " + userIP + " -j ACCEPT";
     std::string deleteCommand = "iptables -D INPUT -p tcp --dport 22 -s " + userIP + " -j ACCEPT";
 
+    system("sudo iptables -D INPUT -p tcp --dport 22 -j DROP");
     system(addCommand.c_str());
+    system("sudo iptables -A INPUT -p tcp --dport 22 -j DROP");
     struct Msg {
         std::string command;
         std::string calendarPath;
