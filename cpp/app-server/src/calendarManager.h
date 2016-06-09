@@ -6,6 +6,7 @@
 #define ACCESS_CONTROL_CALENDARMANAGER_H
 
 #include <string>
+#include <pthread.h>
 #include "reservation.h"
 #include "jsonFileManager.h"
 #include "communication-protocol.h"
@@ -20,6 +21,7 @@ public:
     static json getCalendar(std::string path);
 private:
     static bool validateReservation(json calendar, Reservation res);
+    static pthread_mutex_t mutex;
 };
 
 

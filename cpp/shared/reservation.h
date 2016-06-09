@@ -33,13 +33,13 @@ public:
 
     inline time_t startTimeToTime_t() const {
         struct tm startTm = start_;
-        return mktime(&startTm);
+        return timegm(&startTm);
     }
 
     inline time_t endTimeToTime_t() const {
         struct tm startTm = start_;
         startTm.tm_hour += duration_;
-        return mktime(&startTm);
+        return timegm(&startTm);
     }
 
     static const Reservation missingReservation;
