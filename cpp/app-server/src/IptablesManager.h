@@ -18,10 +18,11 @@
 
 #include "utils.h"
 #include "calendarManager.h"
+#include "Logger.h"
 
 class IptablesManager {
 public:
-    static bool unlock(std::string username, std::string userIP, std::string calendarPath);
+    static bool unlock(std::string username, std::string userIP, std::string calendarPath, Logger* logger);
 
 private:
     static Reservation checkIfReserved(std::string username, std::string calendarPath);

@@ -50,4 +50,17 @@ std::string Reservation::startTimeToString() const {
     return std::string(buffer);
 }
 
+std::string Reservation::getDuration() const {
+    const int bufferSize = 30;
+    char buffer[bufferSize];
+    sprintf(buffer, "%d", duration_);
+    return std::string(buffer);
+}
+
+std::string Reservation::getReservationDescription(){
+    std::string description = startDateToString() + std::string(" ")  + startTimeToString() + std::string(" ")
+                                +  getDuration()  + std::string(" hours");
+    return description;
+}
+
 const Reservation Reservation::missingReservation = Reservation();
