@@ -12,11 +12,12 @@ window.onload = function(){
 function listEvent(event){
     event.stopPropagation();
 }
-
+var months = ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec', 'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'];
 var day;
 function tableText(e){
     var daytemp = e.currentTarget.innerText;
     day = daytemp;
+    var calendar = "";
     if($("#time") != undefined)
     {
         $("#time").empty().remove();
@@ -25,10 +26,56 @@ function tableText(e){
     {
         return;
     }
+    $.ajax({
+      method: "POST",
+      url: "",
+      data: {'calendar' : 'calendar', 'csrfmiddlewaretoken' : getCookie('csrftoken')},
+      async: true,
+      success : function(msg){
+          makeList(msg,e);
+    }
+    });
+}
+function makeList(msg,e) 
+{
+    var calendar = msg;
     newSelect = "<select id = \"time\" style=\"position: absolute; z-index : 1;\" multiple onclick = \"listEvent(event);\">";
+    var colors = [];
     for(i = 0; i<24; ++i)
     {
-        newSelect +="<option> "
+        colors[i] = "white";
+    }
+    
+    for(i = 0; i < calendar.reservations.length; ++i)
+    {
+        var start = calendar.reservations[i].start.replace(/[:.]/g, " ").split(" ");
+        if(start[0] == day && months[parseInt(start[1])-1] == $("#month").text() && start[2] == $("#year").text())
+        {
+            //reservation on this day, set color for every field
+            var color = "white";
+            if(calendar.reservations[i].username == "me")
+            {
+                color = "green";
+            }
+            else if(calendar.reservations[i].username == "someone")
+            {
+                color = "red";
+            }
+            var startHour = parseInt(start[3]);
+            colors[startHour] = color;
+            if(parseInt(start[4]) > 0)
+            {
+                colors[++startHour] = color;
+            }
+            for(j = startHour ;j < calendar.reservations[i].duration + startHour ; ++j)
+            {
+                colors[j] = color;
+            }
+        }
+    }
+    for(i = 0; i<24; ++i)
+    {
+        newSelect +="<option style = \" background : " + colors[i] + "\">"
         if(i<10)
         {
             newSelect += "0";
@@ -36,7 +83,7 @@ function tableText(e){
         newSelect += i +":00 </option>";
     }
     newSelect +="</select>";
-    $(e.currentTarget).append(newSelect);
+    $(e.originalTarget).append(newSelect);
 }
 function getCookie(cname) {
     var name = cname + "=";
@@ -106,7 +153,31 @@ function reserve()
 }
 function resign()
 {
-   
+   selected = $("#time option:selected").text();
+   if (day == undefined || day == "")
+   {
+      alert("nie wybrano dnia!");
+      return;
+   }
+   if (selected == "")
+   {
+       alert("nie wybrano godzin!");
+       return;
+   }
+  var resignJSON = { month : $("#month").text(), year : $("#year").text(), day: day, time : selected };
+  $.ajax({
+      method: "POST",
+      url: "",
+      data: {'resign' : JSON.stringify(resignJSON), 'csrfmiddlewaretoken' : getCookie('csrftoken')},
+      async: true,
+      success : function(msg){
+          alert(msg);
+      }
+  });
+}
+function confirm()
+{
+    
 }
 function makeCalendar(data)
 {
