@@ -149,10 +149,7 @@ void* clientThreadFunction(void *data) {
                 }
                 case 13: // getMyReservations
                 {
-                    auto reservations = CalendarManager::getReservations(server->getCalendarFilePath());
-                    reservations.erase(std::remove_if(reservations.begin(), reservations.end(),
-                                       [&](Reservation& elem){ return elem.username() != username; }),
-                                       reservations.end());
+                    auto reservations = CalendarManager::getReservations(server->getCalendarFilePath(), username);
                     conn.sendMessage(sockfd, CommunicationProtocol::createMyReservationsResponse(reservations));
                     break;
                 }
