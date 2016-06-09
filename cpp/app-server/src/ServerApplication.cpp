@@ -86,6 +86,8 @@ void* clientThreadFunction(void *data) {
     std::string username, challenge;
     ServerConnection conn = ServerConnection::messageObject(sockfd);
 
+    std::string clientIP = conn.getClientIP(sockfd);
+
     try {
         while ((buf = conn.receiveMessage(sockfd)).length() != 0) {
             switch(CommunicationProtocol::getMessageType(buf))
@@ -115,7 +117,6 @@ void* clientThreadFunction(void *data) {
                 {
                     Reservation res = CommunicationProtocol::getReservation(buf);
                     res.changeUsername(username);                                                               //we need to add to reservation a username get from authorization
-                    json calendar = jsonFileManager::getJson(server->getCalendarFilePath());
 
                     if(CalendarManager::addReservation(server->getCalendarFilePath(), res))
                         conn.sendMessage(sockfd, CommunicationProtocol::createReservedFor(true, Reservation::missingReservation));
@@ -125,14 +126,7 @@ void* clientThreadFunction(void *data) {
                 }
                 case 7:                 //unlock
                 {
-                    socklen_t len;
-                    struct sockaddr_storage addr;
-                    char ip[INET_ADDRSTRLEN];
-                    len = sizeof addr;
-                    getpeername(sockfd, (struct sockaddr*)&addr, &len);
-                    struct sockaddr_in *s = (struct sockaddr_in *)&addr;
-                    inet_ntop(AF_INET, &s->sin_addr, ip, INET_ADDRSTRLEN);
-                    conn.sendMessage(sockfd, CommunicationProtocol::createUnlockedFor(IptablesManager::unlock(username, server->getServerPort(), ip, server->getCalendarFilePath())));
+                    conn.sendMessage(sockfd, CommunicationProtocol::createUnlockedFor(IptablesManager::unlock(username, clientIP, server->getCalendarFilePath())));
                     break;
                 }
                 case 9:                 //getCalendar

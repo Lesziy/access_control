@@ -4,6 +4,8 @@
 
 #include "calendarManager.h"
 
+pthread_mutex_t CalendarManager::mutex = PTHREAD_MUTEX_INITIALIZER;
+
 json CalendarManager::createNewCalendar(std::string path, std::vector<Reservation> reservations) {
     json calendar;
     for(int i = 0; i < reservations.size(); i++) {
@@ -13,7 +15,9 @@ json CalendarManager::createNewCalendar(std::string path, std::vector<Reservatio
         calendar["reservations"][i]["username"] = reservations[i].username();
     }
 
+    pthread_mutex_lock(&mutex);
     jsonFileManager::saveFile(path, calendar);
+    pthread_mutex_unlock(&mutex);
 
     return calendar;
 }
@@ -21,7 +25,9 @@ json CalendarManager::createNewCalendar(std::string path, std::vector<Reservatio
 bool CalendarManager::addReservation(std::string path, Reservation res) {
     int index = 0;
 
+    pthread_mutex_lock(&mutex);
     auto data = jsonFileManager::getJson(path);
+    pthread_mutex_unlock(&mutex);
 
     if(!validateReservation(data, res))
         return false;
@@ -33,7 +39,11 @@ bool CalendarManager::addReservation(std::string path, Reservation res) {
     data["reservations"][index]["interval_in_hours"] = res.duration();
     data["reservations"][index]["start_hour"] = res.startTimeToString();
     data["reservations"][index]["username"] = res.username();
+
+    pthread_mutex_lock(&mutex);
     jsonFileManager::saveFile(path, data);
+    pthread_mutex_unlock(&mutex);
+
     return true;
 }
 
@@ -60,7 +70,10 @@ bool CalendarManager::cancelReservation(std::string path, Reservation res) {
 
 std::vector <Reservation> CalendarManager::getReservations(std::string path){
     std::vector <Reservation> reservations;
+
+    pthread_mutex_lock(&mutex);
     auto calendar = jsonFileManager::getJson(path);
+    pthread_mutex_unlock(&mutex);
 
     for (auto& element : calendar["reservations"]) {
         std::string date = element["date"];
@@ -74,7 +87,10 @@ std::vector <Reservation> CalendarManager::getReservations(std::string path){
 
 std::vector <Reservation> CalendarManager::getReservations(std::string path, std::string username){
     std::vector <Reservation> reservations;
+
+    pthread_mutex_lock(&mutex);
     auto calendar = jsonFileManager::getJson(path);
+    pthread_mutex_unlock(&mutex);
 
     for (auto& element : calendar["reservations"]) {
         if(element["username"] == username) {
@@ -89,7 +105,11 @@ std::vector <Reservation> CalendarManager::getReservations(std::string path, std
 }
 
 json CalendarManager::getCalendar(std::string path) {
-    return jsonFileManager::getJson(path);
+    pthread_mutex_lock(&mutex);
+    json calendar = jsonFileManager::getJson(path);
+    pthread_mutex_unlock(&mutex);
+
+    return calendar;
 }
 
 bool CalendarManager::validateReservation(json calendar, Reservation res) {

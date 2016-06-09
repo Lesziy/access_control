@@ -66,3 +66,14 @@ int ServerConnection::acceptConnection() {
 
     return new_fd;
 }
+
+std::string ServerConnection::getClientIP(const int sockfd) {
+    socklen_t len;
+    struct sockaddr_storage addr;
+    char ip[INET_ADDRSTRLEN];
+    len = sizeof addr;
+    getpeername(sockfd, (struct sockaddr*)&addr, &len);
+    struct sockaddr_in *s = (struct sockaddr_in *)&addr;
+    inet_ntop(AF_INET, &s->sin_addr, ip, INET_ADDRSTRLEN);
+    return std::string(ip);
+}
