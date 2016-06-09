@@ -29,6 +29,7 @@ public:
     static ServerConnection messageObject(const int sockfd);
     static ServerConnection establishConnection(const std::string & port);
     int acceptConnection();
+    std::string getClientIP(const int sockfd);
 };
 
 #endif /* CONNECTION_H_ */

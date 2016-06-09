@@ -86,6 +86,8 @@ void* clientThreadFunction(void *data) {
     std::string username, challenge;
     ServerConnection conn = ServerConnection::messageObject(sockfd);
 
+    std::string clientIP = conn.getClientIP(sockfd);
+
     try {
         while ((buf = conn.receiveMessage(sockfd)).length() != 0) {
             switch(CommunicationProtocol::getMessageType(buf))
@@ -108,13 +110,13 @@ void* clientThreadFunction(void *data) {
                     authenticated = response.compare(hashRes) == 0;
                     message = AuthenticationProtocol::createAuthenticatedFor(authenticated);
                     conn.sendMessage(sockfd, message);
+                    challenge = "";                                                                             // it's a protection before many times using challenge
                     break;
                 }
                 case 5:                 //reservation
                 {
                     Reservation res = CommunicationProtocol::getReservation(buf);
                     res.changeUsername(username);                                                               //we need to add to reservation a username get from authorization
-                    json calendar = jsonFileManager::getJson(server->getCalendarFilePath());
 
                     if(CalendarManager::addReservation(server->getCalendarFilePath(), res))
                         conn.sendMessage(sockfd, CommunicationProtocol::createReservedFor(true, Reservation::missingReservation));
@@ -123,7 +125,10 @@ void* clientThreadFunction(void *data) {
                     break;
                 }
                 case 7:                 //unlock
+                {
+                    conn.sendMessage(sockfd, CommunicationProtocol::createUnlockedFor(IptablesManager::unlock(username, clientIP, server->getCalendarFilePath())));
                     break;
+                }
                 case 9:                 //getCalendar
                 {
                     std::vector <Reservation> reservations = CalendarManager::getReservations(server->getCalendarFilePath());

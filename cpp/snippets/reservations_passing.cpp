@@ -1,12 +1,11 @@
 #include "reservation.h"
 #include "communication-protocol.h"
-#include "json.hpp"
 
 using json = nlohmann::json;
 
 int main() {
-    auto r1 = Reservation::create("12.12.2015 00:00:15", 1),
-         r2 = Reservation::create("6.12.2015 00:10:15", 2);
+    auto r1 = Reservation::create("12.12.2015 00:00:15", 1, "User1"),
+         r2 = Reservation::create("6.12.2015 00:10:15", 2, "User2");
     std::vector<Reservation> reservations{r1, r2};
     auto calendar = CommunicationProtocol::createCalendarFor(reservations);
     std::cout << json::parse(calendar).dump(4) << std::endl;

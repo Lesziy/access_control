@@ -1,6 +1,6 @@
 #include "auth-protocol.h"
 
-const std::string AuthenticationProtocol::createHandshakeFor(const std::string & login) {
+const std::string AuthenticationProtocol::makeHandshake(const std::string &login) {
     return createMessageFor("handshake", "login", login);
 }
 
@@ -8,7 +8,7 @@ const std::string AuthenticationProtocol::createChallengeFor(const std::string &
     return createMessageFor("challenge", "challenge", challenge);
 }
 
-const std::string AuthenticationProtocol::createResponseFor(const std::string & password) {
+const std::string AuthenticationProtocol::makeResponse(const std::string &password) {
     return createMessageFor("response", "password", password);
 }
 

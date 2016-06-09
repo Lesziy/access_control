@@ -5,9 +5,9 @@ using json = nlohmann::json;
 
 class AuthenticationProtocol {
 public:
-    static const std::string createHandshakeFor(const std::string & login);
+    static const std::string makeHandshake(const std::string &login);
     static const std::string createChallengeFor(const std::string & challenge);
-    static const std::string createResponseFor(const std::string & password);
+    static const std::string makeResponse(const std::string &password);
     static const std::string createAuthenticatedFor(const bool isAuthenticated);
 
     static const std::string getLogin(const std::string & handshakeMessage);
