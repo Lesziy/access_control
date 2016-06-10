@@ -6,7 +6,7 @@
 
 void* timeGuardianFunction(void *data);
 
-bool IptablesManager::unlock(std::string username, std::string userIP, std::string calendarPath) {
+bool IptablesManager::unlock(std::string username, std::string userIP, std::string calendarPath, Logger* logger) {
     Reservation reservation = checkIfReserved(username, calendarPath);
 
     if(reservation.username() == "")
@@ -15,18 +15,25 @@ bool IptablesManager::unlock(std::string username, std::string userIP, std::stri
     std::string addCommand = "iptables -A INPUT -p tcp --dport 22 -s " + userIP + " -j ACCEPT";
     std::string deleteCommand = "iptables -D INPUT -p tcp --dport 22 -s " + userIP + " -j ACCEPT";
 
+    system("sudo iptables -D INPUT -p tcp --dport 22 -j DROP");
     system(addCommand.c_str());
+    system("sudo iptables -A INPUT -p tcp --dport 22 -j DROP");
     struct Msg {
         std::string command;
         std::string calendarPath;
         time_t endTime;
+        Logger* logger;
+        std::string userIP;
     } *msg;
     msg = new Msg();
     msg->command = deleteCommand;
     msg->calendarPath = calendarPath;
     msg->endTime = reservation.endTimeToTime_t();
+    msg->logger = logger;
+    msg->userIP = userIP;
     pthread_t timeGuardian;
 
+    logger->log(userIP, username, std::string("UNLOCKED"), std::string(""));
     pthread_create(&timeGuardian, NULL, timeGuardianFunction, (void*) msg);
     return true;
 }
@@ -49,12 +56,16 @@ void* timeGuardianFunction(void *data) {
         std::string command;
         std::string calendarPath;
         time_t endTime;
+        Logger* logger;
+        std::string userIP;
     } *msg;
 
     msg = (Msg *) data;
     std::string deleteCommand = msg->command;
     std::string calendarPath = msg->calendarPath;
     time_t endTime = msg->endTime;
+    Logger* logger = msg->logger;
+    std::string userIP = msg->userIP;
     delete (msg);
 
     time_t actualTime = utils::getActualUTCTime();
@@ -63,7 +74,7 @@ void* timeGuardianFunction(void *data) {
 
     sleep(howLongSleep);
     system(deleteCommand.c_str());
-
+    logger->log(userIP, std::string("SERVER"), std::string("IPTABLES_TIMEOUT"), std::string(""));
     std::vector<Reservation> reservations = CalendarManager::getReservations(calendarPath);
     for(int i = 0; i < reservations.size(); i++)
         if(difftime(endTime, reservations[i].endTimeToTime_t()) >= 0)

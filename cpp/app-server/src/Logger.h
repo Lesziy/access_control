@@ -16,14 +16,16 @@
 
 class Logger {
 public:
-	Logger(std::string logFilePath);
-	~Logger();
-	void log(std::string ip, std::string user, std::string type, std::string description);
-	
+
+    Logger(std::string logFilePath);
+    ~Logger();
+    void log(std::string ip, std::string user, std::string type, std::string description);
 
 private:
-	std::string getCurrentTime();
-	std::ofstream logStream;
+    std::ofstream logStream;
+    std::string getCurrentTime();
+    static pthread_mutex_t mutex;
+
 };
 
 #endif /* LOGGER_H_ */

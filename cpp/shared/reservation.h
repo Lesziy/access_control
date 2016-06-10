@@ -19,6 +19,10 @@ public:
 
     std::string startTimeToString() const;
 
+    std::string getDuration() const;
+
+    std::string getReservationDescription();
+
     inline int duration() const {
         return duration_;
     }

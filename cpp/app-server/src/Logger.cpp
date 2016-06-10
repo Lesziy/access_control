@@ -7,6 +7,9 @@
 
 #include "Logger.h"
 
+pthread_mutex_t Logger::mutex = PTHREAD_MUTEX_INITIALIZER;
+
+
 Logger::Logger(std::string logFilePath) {
 	logStream.open(logFilePath, std::ios_base::out | std::ios_base::app);
 	if (!logStream.is_open())
@@ -26,10 +29,15 @@ std::string Logger::getCurrentTime() {
 	return properData;
 }
 
+
 void Logger::log(std::string ip, std::string user, std::string type, std::string description)
 {
-	logStream << getCurrentTime() << "; " << ip << "; " << user << "; " << type << "; " << description << "\n";
+    pthread_mutex_lock(&mutex);
+    logStream << getCurrentTime() << "; " << ip << "; " << user << "; " << type << "; " << description << "\n";
+    logStream.flush();
+    pthread_mutex_unlock(&mutex);
 }
+
 
 Logger::~Logger() {
 	logStream.close();

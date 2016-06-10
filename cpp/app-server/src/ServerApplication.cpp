@@ -45,6 +45,7 @@ void ServerApplication::loadConfiguration() {
     userFilePath = j["configuration"]["user_file_path"];
     calendarFilePath = j["configuration"]["calendar_file_path"];
     logFilePath = j["configuration"]["log_file_path"];
+    logger = new Logger(logFilePath);
 }
 
 std::string ServerApplication::hashPassword(const std::string & passwordHash, const std::string & challenge){
@@ -85,6 +86,8 @@ void* clientThreadFunction(void *data) {
     std::string buf;
     std::string username, challenge;
     ServerConnection conn = ServerConnection::messageObject(sockfd);
+    Logger* logger = server->getLogger();
+    std::string description;
 
     std::string clientIP = conn.getClientIP(sockfd);
 
@@ -98,6 +101,7 @@ void* clientThreadFunction(void *data) {
                     challenge = server->generateChallenge();
                     std::string message = AuthenticationProtocol::createChallengeFor(challenge);
                     conn.sendMessage(sockfd, message);
+                    logger->log(clientIP, username, std::string("HANDSHAKE"), description);
                     break;
                 }
                 case 3:                 //response
@@ -105,46 +109,68 @@ void* clientThreadFunction(void *data) {
                     bool authenticated;
                     std::string message;
                     std::string response = AuthenticationProtocol::getResponse(buf);
+                    logger->log(clientIP, username, std::string("RESPONSE"), description);
                     std::string password = jsonFileManager::getPasswordHash(server->getUsersFilePath(), username);
                     std::string hashRes = server->hashPassword(password, challenge);
                     authenticated = response.compare(hashRes) == 0;
                     message = AuthenticationProtocol::createAuthenticatedFor(authenticated);
                     conn.sendMessage(sockfd, message);
-                    challenge = "";                                                                             // it's a protection before many times using challenge
+                    if(!authenticated)
+                        logger->log(clientIP, username, std::string("NOT_AUTHENTICATED"), description);
+                    else
+                        logger->log(clientIP, username, std::string("AUTHENTICATED"), description);
+                    challenge = "";                                                                             // it's a protection against using challenge many times
                     break;
                 }
                 case 5:                 //reservation
                 {
                     Reservation res = CommunicationProtocol::getReservation(buf);
                     res.changeUsername(username);                                                               //we need to add to reservation a username get from authorization
-
-                    if(CalendarManager::addReservation(server->getCalendarFilePath(), res))
+                    description = res.getReservationDescription();
+                    logger->log(clientIP, username, std::string("RESERVATION"), description);
+                    if(CalendarManager::addReservation(server->getCalendarFilePath(), res)) {
+                        description.clear();
                         conn.sendMessage(sockfd, CommunicationProtocol::createReservedFor(true, Reservation::missingReservation));
-                    else
+                        logger->log(clientIP, username, std::string("RESERVED"), description);
+                    }
+                    else {
                         conn.sendMessage(sockfd, CommunicationProtocol::createReservedFor(false, res));
+                        logger->log(clientIP, username, std::string("NOT_RESERVED"), description);
+                        description.clear();
+                    }
                     break;
                 }
                 case 7:                 //unlock
                 {
+
                     auto ipToUnlock = CommunicationProtocol::ipToUnlock(buf);
                     conn.sendMessage(sockfd,
                                      CommunicationProtocol::createUnlockedFor(
                                              IptablesManager::unlock(username,
                                                                      ipToUnlock == "" ? clientIP : ipToUnlock,
-                                                                     server->getCalendarFilePath())));
+                                                                     server->getCalendarFilePath(), logger)));
+
+                    conn.sendMessage(sockfd, CommunicationProtocol::createUnlockedFor(IptablesManager::unlock(username, clientIP, server->getCalendarFilePath(), logger)));
+                    logger->log(clientIP, username, std::string("UNLOCK"), description);
+
                     break;
                 }
                 case 9:                 //getMyMessages
                 {
                     std::vector <Reservation> reservations = CalendarManager::getReservations(server->getCalendarFilePath());
                     conn.sendMessage(sockfd, CommunicationProtocol::createCalendarFor(reservations));
+                    logger->log(clientIP, username, std::string("GET_CALENDAR"), description);
                     break;
                 }
                 case 11:                //cancel
                 {
                     Reservation res = CommunicationProtocol::getCancel(buf);
+                    description = res.getReservationDescription();
+                    logger->log(clientIP, username, std::string("CANCEL"), description);
                     res.changeUsername(username);
                     conn.sendMessage(sockfd, CommunicationProtocol::createCanceledFor(CalendarManager::cancelReservation(server->getCalendarFilePath(), res)));
+                    logger->log(clientIP, username, std::string("CANCELLED"), description);
+                    description.clear();
                     break;
                 }
                 case 13: // getMyReservations
@@ -154,7 +180,11 @@ void* clientThreadFunction(void *data) {
                     break;
                 }
                 default:
+                {
+                    logger->log(clientIP, username, std::string("BAD_CALL"), description);
                     throw std::runtime_error("Unsupported action");
+                }
+
             }
             buf.clear();
         }
@@ -162,6 +192,12 @@ void* clientThreadFunction(void *data) {
         std::cout << err.what() << std::endl;
     }
 
+    logger->log(clientIP, username, std::string("SESSION_END"), description);
     close(sockfd);
     return nullptr;
+}
+
+
+Logger* ServerApplication::getLogger() {
+    return logger;
 }
