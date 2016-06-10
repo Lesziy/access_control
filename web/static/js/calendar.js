@@ -178,7 +178,15 @@ function resign()
 }
 function confirm()
 {
-    
+    $.ajax({
+        method: "POST",
+        url: "",
+        data: {'unlock' : 'unlock', 'csrfmiddlewaretoken' : getCookie('csrftoken')},
+        async: true,
+        success : function(msg){
+            alert(msg);
+        }
+    });
 }
 function makeCalendar(data)
 {
