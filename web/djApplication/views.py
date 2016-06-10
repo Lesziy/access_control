@@ -11,6 +11,7 @@ import logging
 import os
 import sha3
 from django.conf import settings
+from ipware.ip import get_ip
 months = ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec', 'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień']
 dayNames = ['Pon', 'Wt', 'Śr', 'Czw','Pt','Sob','Nie']
 logging.basicConfig(filename = settings.BASE_DIR + '/logs/log.log',level = logging.DEBUG, format = '%(asctime)s %(levelname)s: %(message)s',datefmt = '%m/%d/%Y %H:%M:%S')
@@ -36,6 +37,8 @@ def index(request):
          return HttpResponse(processResignation(request))
       if "calendar" in request.POST:
          return reservedHours(request)
+      if "unlock" in request.POST:
+         return HttpResponse(unlock(request))
    #hold session
    
    if "username" in request.session:
@@ -177,7 +180,21 @@ def jsonCalendar(request):
    logging.info("%s requested calendar for %d.%d", request.session["username"], monthNumber, year)
    return JsonResponse(calendarSite(year, monthNumber))
 
-
+def unlock(request):
+   ip = get_ip(request)
+   print str(ip)
+   sessionSocket = sessions[request.session.session_key]
+   sessionSocket.send("{\
+   \"msg\": \"unlock\",\
+   \"ip\" : \"" + str(ip) + "\"\
+   }")
+   response = getResponse(sessionSocket)
+   response = json.loads(response)
+   if(response["value"]):
+      logging.info("%s unlocked machine from %s", request.session["username"], str(ip))
+      return "ok"
+   logging.error("%s unlocking machine failed from %s", request.session["username"], str(ip))
+   return "unlock revoked"
 
 def calendarSite(year, month):
    
