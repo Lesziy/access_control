@@ -22,7 +22,6 @@ public:
             const Reservation& reservation);
     static const std::string createUnlockFor();
     static const std::string createUnlockedFor(const bool isUnlocked);
-    static const std::string createGetCalendarFor();
     static const std::string createCalendarFor(
             std::vector<Reservation>& reservations);
     static const std::string createCancelFor(const Reservation & reservation);
