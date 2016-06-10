@@ -5,7 +5,7 @@
 //We have to remember that in iptables should be rule:
 //  iptables -A INPUT -p tcp --dport 22 -j DROP
 // this rule blocked every connection to port ssh - 22
-// we can achieve that by command: sudo iptables -D INPUT -p tcp --dport 22 -j DROP
+// we can achieve that by command: sudo iptables -A INPUT -p tcp --dport 22 -j DROP
 
 #ifndef ACCESS_CONTROL_IPTABLESMANAGER_H
 #define ACCESS_CONTROL_IPTABLESMANAGER_H

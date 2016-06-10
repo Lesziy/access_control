@@ -12,12 +12,20 @@ bool IptablesManager::unlock(std::string username, std::string userIP, std::stri
     if(reservation.username() == "")
         return false;
 
+    time_t timeEnd = reservation.endTimeToTime_t();
+
+    std::vector<Reservation> reservations = CalendarManager::getReservations(calendarPath);
+    for(int i = 0; i < reservations.size(); i++)
+        if(difftime(timeEnd, reservations[i].endTimeToTime_t()) >= 0)
+            CalendarManager::cancelReservation(calendarPath, reservations[i]);
+
     std::string addCommand = "iptables -A INPUT -p tcp --dport 22 -s " + userIP + " -j ACCEPT";
     std::string deleteCommand = "iptables -D INPUT -p tcp --dport 22 -s " + userIP + " -j ACCEPT";
 
     system("sudo iptables -D INPUT -p tcp --dport 22 -j DROP");
     system(addCommand.c_str());
     system("sudo iptables -A INPUT -p tcp --dport 22 -j DROP");
+
     struct Msg {
         std::string command;
         std::string calendarPath;
@@ -28,7 +36,7 @@ bool IptablesManager::unlock(std::string username, std::string userIP, std::stri
     msg = new Msg();
     msg->command = deleteCommand;
     msg->calendarPath = calendarPath;
-    msg->endTime = reservation.endTimeToTime_t();
+    msg->endTime = timeEnd;
     msg->logger = logger;
     msg->userIP = userIP;
     pthread_t timeGuardian;
@@ -74,9 +82,6 @@ void* timeGuardianFunction(void *data) {
 
     sleep(howLongSleep);
     system(deleteCommand.c_str());
+
     logger->log(userIP, std::string("SERVER"), std::string("IPTABLES_TIMEOUT"), std::string(""));
-    std::vector<Reservation> reservations = CalendarManager::getReservations(calendarPath);
-    for(int i = 0; i < reservations.size(); i++)
-        if(difftime(endTime, reservations[i].endTimeToTime_t()) >= 0)
-            CalendarManager::cancelReservation(calendarPath, reservations[i]);
 }

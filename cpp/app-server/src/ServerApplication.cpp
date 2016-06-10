@@ -150,7 +150,6 @@ void* clientThreadFunction(void *data) {
                                                                      ipToUnlock == "" ? clientIP : ipToUnlock,
                                                                      server->getCalendarFilePath(), logger)));
 
-                    conn.sendMessage(sockfd, CommunicationProtocol::createUnlockedFor(IptablesManager::unlock(username, clientIP, server->getCalendarFilePath(), logger)));
                     logger->log(clientIP, username, std::string("UNLOCK"), description);
 
                     break;

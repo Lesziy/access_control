@@ -32,7 +32,9 @@ const std::string CommunicationProtocol::createReservedFor(
 }
 
 const std::string CommunicationProtocol::createUnlockFor() {
-    return basicMessage("unlock").dump();
+    auto msg = basicMessage("unlock");
+    msg["ip"] = "";
+    return msg.dump();
 }
 
 const std::string CommunicationProtocol::createUnlockedFor(
