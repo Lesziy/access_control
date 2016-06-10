@@ -154,7 +154,7 @@ void* clientThreadFunction(void *data) {
 
                     break;
                 }
-                case 9:                 //getMyMessages
+                case 9:                 //getCalendar
                 {
                     std::vector <Reservation> reservations = CalendarManager::getReservations(server->getCalendarFilePath());
                     conn.sendMessage(sockfd, CommunicationProtocol::createCalendarFor(reservations));

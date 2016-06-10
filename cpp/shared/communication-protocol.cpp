@@ -44,10 +44,6 @@ const std::string CommunicationProtocol::createUnlockedFor(
     return msg.dump();
 }
 
-const std::string CommunicationProtocol::createGetCalendarFor() {
-    return basicMessage("getMyMessages").dump();
-}
-
 const std::string CommunicationProtocol::createCalendarFor(
         std::vector<Reservation>& reservations) {
     auto msg = basicMessage("calendar");
@@ -131,7 +127,7 @@ const int CommunicationProtocol::getMessageType(const std::string &message) {
             {"reserved", 6},
             {"unlock", 7},
             {"unlocked", 8},
-            {"getMyMessages", 9},
+            {"getCalendar", 9},
             {"calendar", 10},
             {"cancel", 11},
             {"canceled", 12},

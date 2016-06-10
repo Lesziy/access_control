@@ -7,6 +7,14 @@ include_directories("../include" "../shared")
 
 file(GLOB SOURCES "src/*.cpp" "../include/*.cpp" "../shared/*.cpp")
 
+set(LOG_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Log)
+
+file(MAKE_DIRECTORY ${LOG_DIR})
+
+if(NOT EXISTS $LOG_FILE)
+    file(WRITE "${LOG_DIR}/serverLog.log")
+endif()
+
 file(GLOB CONFIG "*.json")
 file( COPY ${CONFIG} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} )
 

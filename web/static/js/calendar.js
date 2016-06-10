@@ -15,7 +15,7 @@ function listEvent(event){
 var months = ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec', 'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'];
 var day;
 function tableText(e){
-    var daytemp = e.currentTarget.innerText;
+    var daytemp = e.currentTarget.innerHTML;
     day = daytemp;
     var calendar = "";
     if($("#time") != undefined)
@@ -83,7 +83,8 @@ function makeList(msg,e)
         newSelect += i +":00 </option>";
     }
     newSelect +="</select>";
-    $(e.originalTarget).append(newSelect);
+    var originalElement = e.srcElement || e.originalTarget;
+    $(originalElement).append(newSelect);
 }
 function getCookie(cname) {
     var name = cname + "=";
@@ -177,7 +178,15 @@ function resign()
 }
 function confirm()
 {
-    
+    $.ajax({
+        method: "POST",
+        url: "",
+        data: {'unlock' : 'unlock', 'csrfmiddlewaretoken' : getCookie('csrftoken')},
+        async: true,
+        success : function(msg){
+            alert(msg);
+        }
+    });
 }
 function makeCalendar(data)
 {
