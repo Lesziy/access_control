@@ -9,6 +9,7 @@ class Reservation {
 public:
     static Reservation create(std::string start, int duration, std::string username);
     static Reservation create(std::string start, int duration);
+    static Reservation create(Reservation res);
 
     inline void changeUsername(std::string username) {
         username_ = username;
@@ -45,6 +46,8 @@ public:
         startTm.tm_hour += duration_;
         return timegm(&startTm);
     }
+
+    bool operator ==(const Reservation& res) const;
 
     static const Reservation missingReservation;
 private:

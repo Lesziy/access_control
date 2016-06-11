@@ -4,6 +4,8 @@
 
 #include "reservation.h"
 
+
+
 Reservation Reservation::create(std::string start, int duration) {
     Reservation reservation;
 
@@ -27,6 +29,10 @@ Reservation Reservation::create(std::string start, int duration, std::string use
     Reservation reservation = create(start, duration);
     reservation.username_ = username;
     return reservation;
+}
+
+Reservation Reservation::create(Reservation res) {
+    return create(res.startToString(), res.duration_, res.username_);
 }
 
 std::string Reservation::startToString() const {
@@ -61,6 +67,12 @@ std::string Reservation::getReservationDescription(){
     std::string description = startDateToString() + std::string(" ")  + startTimeToString() + std::string(" ")
                                 +  getDuration()  + std::string(" hours");
     return description;
+}
+
+bool Reservation::operator==(const Reservation &res) const {
+    return (startToString() == res.startToString()) &&
+           (duration_ == res.duration_) &&
+           (username_ == res.username_);
 }
 
 const Reservation Reservation::missingReservation = Reservation();

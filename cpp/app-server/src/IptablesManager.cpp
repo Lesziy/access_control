@@ -4,6 +4,8 @@
 
 #include "IptablesManager.h"
 
+Reservation IptablesManager::lastUnlockedRes = Reservation::create("01.01.1000 00:00:00", 0);
+
 void* timeGuardianFunction(void *data);
 
 bool IptablesManager::unlock(std::string username, std::string userIP, std::string calendarPath, Logger* logger) {
@@ -12,19 +14,15 @@ bool IptablesManager::unlock(std::string username, std::string userIP, std::stri
     if(reservation.username() == "")
         return false;
 
-    time_t timeEnd = reservation.endTimeToTime_t();
+    if(lastUnlockedRes == reservation)
+        return true;
+    else
+        lastUnlockedRes = Reservation::create(reservation);
 
-    std::vector<Reservation> reservations = CalendarManager::getReservations(calendarPath);
-    for(int i = 0; i < reservations.size(); i++)
-        if(difftime(timeEnd, reservations[i].endTimeToTime_t()) >= 0)
-            CalendarManager::cancelReservation(calendarPath, reservations[i]);
-
-    std::string addCommand = "iptables -A INPUT -p tcp --dport 22 -s " + userIP + " -j ACCEPT";
+    std::string addCommand = "iptables -I INPUT 1 -p tcp --dport 22 -s " + userIP + " -j ACCEPT";
     std::string deleteCommand = "iptables -D INPUT -p tcp --dport 22 -s " + userIP + " -j ACCEPT";
 
-    system("sudo iptables -D INPUT -p tcp --dport 22 -j DROP");
     system(addCommand.c_str());
-    system("sudo iptables -A INPUT -p tcp --dport 22 -j DROP");
 
     struct Msg {
         std::string command;
@@ -36,7 +34,7 @@ bool IptablesManager::unlock(std::string username, std::string userIP, std::stri
     msg = new Msg();
     msg->command = deleteCommand;
     msg->calendarPath = calendarPath;
-    msg->endTime = timeEnd;
+    msg->endTime = reservation.endTimeToTime_t();
     msg->logger = logger;
     msg->userIP = userIP;
     pthread_t timeGuardian;
@@ -77,11 +75,16 @@ void* timeGuardianFunction(void *data) {
     delete (msg);
 
     time_t actualTime = utils::getActualUTCTime();
-
     unsigned int howLongSleep = (unsigned int)difftime(endTime, actualTime);
 
     sleep(howLongSleep);
+
     system(deleteCommand.c_str());
 
     logger->log(userIP, std::string("SERVER"), std::string("IPTABLES_TIMEOUT"), std::string(""));
+
+    std::vector<Reservation> reservations = CalendarManager::getReservations(calendarPath);
+    for(int i = 0; i < reservations.size(); i++)
+        if(difftime(endTime, reservations[i].endTimeToTime_t()) >= 0)
+            CalendarManager::cancelReservation(calendarPath, reservations[i]);
 }

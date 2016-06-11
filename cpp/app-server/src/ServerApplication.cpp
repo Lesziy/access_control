@@ -142,7 +142,6 @@ void* clientThreadFunction(void *data) {
                 }
                 case 7:                 //unlock
                 {
-
                     auto ipToUnlock = CommunicationProtocol::ipToUnlock(buf);
                     conn.sendMessage(sockfd,
                                      CommunicationProtocol::createUnlockedFor(

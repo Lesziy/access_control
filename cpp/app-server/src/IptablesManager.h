@@ -26,6 +26,7 @@ public:
 
 private:
     static Reservation checkIfReserved(std::string username, std::string calendarPath);
+    static Reservation lastUnlockedRes;
 };
 
 
